@@ -1,0 +1,26 @@
+Copyright (c) Trulioo. All rights reserved.
+
+This software (the "Trulioo MCP Claude Code plugin", including its manifests,
+skills, commands, and agent definitions) is provided by Trulioo to enable
+interaction with Trulioo's hosted identity-verification services via the Model
+Context Protocol.
+
+Permission is granted to install and use this plugin solely to connect to and
+use Trulioo's services in accordance with your agreement with Trulioo and the
+applicable service terms at https://www.trulioo.com. No other rights are
+granted.
+
+You may not, except as expressly permitted above or by mandatory applicable law:
+redistribute, sublicense, sell, or host this software or a modified version; or
+remove or alter this notice.
+
+Use of Trulioo's services (including the sandbox and live MCP endpoints) is
+governed by your service agreement and Trulioo's terms and privacy policy, not
+by this file.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL TRULIOO BE
+LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

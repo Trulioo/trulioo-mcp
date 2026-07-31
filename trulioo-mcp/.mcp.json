@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "trulioo": {
+      "type": "http",
+      "url": "https://mcp.trulioo.com/sandbox/mcp"
+    }
+  }
+}

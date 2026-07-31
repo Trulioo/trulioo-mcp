@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "trulioo-mcp",
+  "displayName": "Trulioo MCP",
+  "version": "0.1.0",
+  "description": "Trulioo identity verification for AI agents. Connects to the hosted Trulioo MCP server (KYC, KYB, AML, document verification, age assurance, business monitoring) and bundles product skills, guided workflow commands, and an identity-orchestration agent. Defaults to the no-token sandbox so it works the moment you install it.",
+  "author": {
+    "name": "Trulioo",
+    "email": "mcp@trulioo.com",
+    "url": "https://mcp.trulioo.com"
+  },
+  "homepage": "https://mcp.trulioo.com",
+  "license": "UNLICENSED",
+  "keywords": ["identity", "kyc", "kyb", "aml", "docv", "age-assurance", "verification", "compliance", "trulioo"],
+  "mcpServers": "./.mcp.json",
+  "skills": "./skills/",
+  "commands": [
+    "./commands/kyc-onboarding.md",
+    "./commands/kyb-due-diligence.md",
+    "./commands/aml-investigation.md",
+    "./commands/age-verification.md",
+    "./commands/docv-verification.md",
+    "./commands/monitoring-enrollment.md"
+  ],
+  "agents": ["./agents/identity-orchestrator.md"]
+}
