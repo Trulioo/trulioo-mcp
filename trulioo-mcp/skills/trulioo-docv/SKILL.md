@@ -94,7 +94,7 @@ When the client supports A2UI and the server has `TRULIOO_ENABLE_A2UI=true`, pre
     (`TruliooCapture` custom component, `@trulioo/kyc-documents-capture`).
 - After the user captures, the client fires `a2ui_action` name `capture_complete`
   with the `session_id`; the server polls `docv_get_result` and returns the verdict.
-- The custom components load from the server's hosted component catalog.
+- The custom components use the Prism catalog (`.../catalogs/prism/catalog.json`).
   Capture stays inside the capability-manifest boundary: no image bytes cross MCP,
   the certified viewport is never overlaid, and the SDK is loaded (not transpiled).
 

@@ -137,8 +137,8 @@ When the client supports A2UI (advertised at MCP `initialize`) and the server ha
   and runs `kyc_verify` with `wait_for_completion`. You do not assemble `data_fields`
   yourself in this flow.
 
-The Trulioo demo exposes this behind a Standard | Experimental switch; standard mode is
-the plain chat + raw tool-trace behavior.
+The Prism demo exposes this behind a Standard | Experimental switch; standard mode is
+the plain chat + raw tool-trace behavior. See `docs/standards-and-next-steps.md`.
 
 ### White-labeling
 

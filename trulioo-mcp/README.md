@@ -1,29 +1,26 @@
-# Trulioo MCP - Claude Code plugin
+# Trulioo Prism - Claude Code plugin
 
 Identity verification for AI agents. This plugin connects Claude Code to the
-hosted **Trulioo MCP server** and bundles the product skills, guided workflow
+hosted **Prism MCP server** and bundles the product skills, guided workflow
 commands, and an identity-orchestration agent so verification works the moment
 you install it.
 
 ## Install
 
 ```
-/plugin marketplace add trulioo/trulioo-mcp
+/plugin marketplace add https://mcp.trulioo.com/plugin/.claude-plugin/marketplace.json
 /plugin install trulioo-mcp@trulioo
 ```
 
-The marketplace and plugin payload are hosted in the public
-`github.com/trulioo/trulioo-mcp` repo (a mirror of this directory; see
-`../DISTRIBUTION.md`). Adding via the mcp.trulioo.com URL also works
-(`/plugin marketplace add https://mcp.trulioo.com/plugin/.claude-plugin/marketplace.json`) -
-the `git-subdir` source resolves the payload from GitHub either way. The MCP
-server it wires points at the no-token **sandbox** endpoint
-(`https://mcp.trulioo.com/sandbox/mcp`), so there are no credentials to
+The marketplace manifest is served from `mcp.trulioo.com`; the plugin's tool
+files are pulled from the internal repo via a `git-subdir` source (VPN + repo
+access required). The MCP server it wires points at the no-token **sandbox**
+endpoint (`https://mcp.trulioo.com/sandbox/mcp`), so there are no credentials to
 configure. Sandbox returns synthetic data (no PII, no cost).
 
 ## What you get
 
-- **MCP server `trulioo`** - the full Trulioo tool surface: KYC, KYB, AML
+- **MCP server `trulioo`** - the full Prism tool surface: KYC, KYB, AML
   screening, document verification (DocV), age assurance, and business
   monitoring.
 - **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-aml`, `-docv`, `-age`) -
@@ -57,7 +54,13 @@ Contact <mcp@trulioo.com> for credentials.
 
 ## Maintenance
 
-This repository is a generated, published mirror of the Trulioo MCP plugin. The
-skill and command files are produced from the server's tool definitions and kept
-in lockstep by CI, so they are not hand-edited here. Issues and questions:
-<mcp@trulioo.com>.
+This plugin is generated from the server's single sources of truth and kept in
+lockstep by CI. Do not hand-edit `skills/*/SKILL.md`; regenerate with:
+
+```
+node core/prism/mcp-server/plugin/sync-plugin.mjs
+```
+
+The skill bodies come from `docs/site/.well-known/skills/`; the command set is
+verified against the workflow prompts in `src/prompts.rs`. CI runs
+`sync-plugin.mjs --check` and fails on drift.
