@@ -8,7 +8,8 @@ to Trulioo as themselves on first use.
 
 ## For the IT administrator
 
-Do these once, in order, before telling employees to install anything.
+Full step-by-step rollout (Claude Code + ChatGPT, with a verification checklist
+and rollback): **[IT-SETUP.md](IT-SETUP.md)**. The essentials, in order:
 
 ### Prerequisite: publish the package to the private GitHub repo
 
