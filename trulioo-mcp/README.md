@@ -1,26 +1,54 @@
-# Trulioo Prism - Claude Code plugin
+# Trulioo MCP - Claude Code and ChatGPT plugins
 
-Identity verification for AI agents. This plugin connects Claude Code to the
-hosted **Prism MCP server** and bundles the product skills, guided workflow
-commands, and an identity-orchestration agent so verification works the moment
-you install it.
+Identity verification for AI agents. This package connects Claude Code and
+ChatGPT to the hosted **Trulioo MCP server** at
+`https://mcp.trulioo.com/mcp` using the existing employee OAuth flow. No OAuth
+token or client secret is stored in the package - every employee authenticates
+to Trulioo as themselves on first use.
 
-## Install
+## For the IT administrator
+
+Do these once, in order, before telling employees to install anything.
+
+### Prerequisite: publish the package to the private GitHub repo
+
+Both the Claude and ChatGPT install paths pull the package from the private
+`github.com/trulioo/trulioo-mcp` repository. That repo must exist and contain
+this package before any install command works - until it does,
+`/plugin marketplace add trulioo/trulioo-mcp` fails for everyone.
+
+Publish the package to `github.com/trulioo/trulioo-mcp` (see the file list in
+[CHATGPT.md](CHATGPT.md) under "Before the administrator starts"), then pin a
+release tag for the pilot instead of installing from `main`.
+
+> The live marketplace served at
+> `https://mcp.trulioo.com/plugin/.claude-plugin/marketplace.json` is also
+> regenerated from this package on deploy and points at the same GitHub repo.
+> Publish to GitHub first, or the public marketplace-add path breaks too.
+
+### Roll out Claude Code
+
+Point employees at these two commands (VPN + GitHub org access required):
 
 ```
-/plugin marketplace add https://mcp.trulioo.com/plugin/.claude-plugin/marketplace.json
+/plugin marketplace add trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
-The marketplace manifest is served from `mcp.trulioo.com`; the plugin's tool
-files are pulled from the internal repo via a `git-subdir` source (VPN + repo
-access required). The MCP server it wires points at the no-token **sandbox**
-endpoint (`https://mcp.trulioo.com/sandbox/mcp`), so there are no credentials to
-configure. Sandbox returns synthetic data (no PII, no cost).
+On the first protected tool call, Claude opens the Trulioo OAuth flow and the
+employee signs in with their own account.
+
+### Roll out ChatGPT
+
+ChatGPT uses the same Trulioo MCP endpoint and OAuth flow through one
+administrator-registered MCP connection shared with the workspace. Follow
+[CHATGPT.md](CHATGPT.md) end to end - it covers enabling Developer mode,
+registering the connection, binding `.app.json`, and the pilot -> all-employees
+sharing sequence.
 
 ## What you get
 
-- **MCP server `trulioo`** - the full Prism tool surface: KYC, KYB, AML
+- **MCP server `trulioo`** - the full Trulioo tool surface: KYC, KYB, AML
   screening, document verification (DocV), age assurance, and business
   monitoring.
 - **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-aml`, `-docv`, `-age`) -
@@ -30,27 +58,6 @@ configure. Sandbox returns synthetic data (no PII, no cost).
   `:age-verification`, `:docv-verification`, `:monitoring-enrollment`.
 - **Agent `identity-orchestrator`** - picks the right tools and chains them into
   a compliant onboarding decision.
-
-## Going live
-
-Live verifications use `https://mcp.trulioo.com/mcp` with an OAuth 2.1 bearer
-token. Sandbox and live share identical tool schemas - only the URL and token
-change. To switch, override the MCP server config with the live endpoint and an
-`Authorization` header:
-
-```json
-{
-  "mcpServers": {
-    "trulioo": {
-      "type": "http",
-      "url": "https://mcp.trulioo.com/mcp",
-      "headers": { "Authorization": "Bearer ${TRULIOO_TOKEN}" }
-    }
-  }
-}
-```
-
-Contact <mcp@trulioo.com> for credentials.
 
 ## Maintenance
 

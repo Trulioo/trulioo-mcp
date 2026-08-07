@@ -1,0 +1,20 @@
+{
+  "name": "trulioo",
+  "interface": {
+    "displayName": "Trulioo"
+  },
+  "plugins": [
+    {
+      "name": "trulioo-mcp",
+      "source": {
+        "source": "local",
+        "path": "./trulioo-mcp"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -19,7 +19,11 @@ collection, consent, submission, async polling, and result interpretation.
 
 ## Prerequisites
 
-Run `trulioo-onboarding` skill first to get available packages and field names.
+Initialize with the `trulioo-onboarding` skill first (it runs
+`trulioo_health` -> `config_discover_account` -> `config_describe_context`).
+Concretely, before your first `kyc_verify` you need a `package_id` from
+`config_discover_account` and the exact field names + required consents from
+`config_describe_context(package_id, country)`.
 
 ## What is a package_id (and why it's required)
 
@@ -94,6 +98,26 @@ kyc_get_record(record_id = <transaction_record_id from status response>)
 | `review` | Manual review needed | Escalate to compliance team |
 | `error` | Processing error | Check error details, retry if transient |
 
+## Sandbox behavior
+
+In sandbox (`TRULIOO_MODE=sandbox`, the default) results are synthetic and every
+tool response carries a `test_mode` object (`{sandbox: true, verification_type:
+"Demo", data: "synthetic", ...}`), so you can tell a demo result from a live one
+inline without a separate `trulioo_health` probe.
+
+To exercise each terminal branch, the sandbox picks the outcome from the submitted
+surname (`PersonInfo.FirstSurName`, case-insensitive):
+
+| Surname | Terminal status |
+|---|---|
+| `Nomatch` | `nomatch` |
+| `Review` | `review` |
+| `Error` | `error` |
+| anything else (e.g. `Doe`) | `match` |
+
+`config_describe_context` returns one `test_entities` persona per outcome, so you
+can drive the full range of downstream handling, not just the happy path.
+
 ## Synchronous mode
 
 For UX where you want to wait for the result inline:
@@ -120,8 +144,17 @@ verification results. More efficient than a separate `aml_screen` call.
 
 ## Consent handling
 
-Some countries require explicit consent strings. Get them from `config_describe_context`
-and include in `data_fields.ConsentForDataSources` as an array of strings.
+Some countries require explicit consent. Get the available consents from
+`config_describe_context` (the `consents` array; each entry has a `Name` and legal
+`Text`). Pass the consent **`Name`** values (e.g. `"MockCredit"`) - not the display
+`Text`, not a boolean - to the top-level `consents` parameter of `kyc_verify`:
+
+```json
+{ "consents": ["MockCredit"] }
+```
+
+The server maps them to the NAPI `ConsentForDataSources` field; you do not nest them
+inside `data_fields` yourself.
 
 ## Generative UI (A2UI) - experimental
 
@@ -137,7 +170,7 @@ When the client supports A2UI (advertised at MCP `initialize`) and the server ha
   and runs `kyc_verify` with `wait_for_completion`. You do not assemble `data_fields`
   yourself in this flow.
 
-The Prism demo exposes this behind a Standard | Experimental switch; standard mode is
+The Trulioo MCP demo exposes this behind a Standard | Experimental switch; standard mode is
 the plain chat + raw tool-trace behavior. See `docs/standards-and-next-steps.md`.
 
 ### White-labeling

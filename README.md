@@ -13,9 +13,14 @@ skills, guided workflow commands, and an identity-orchestration agent.
 /plugin install trulioo-mcp@trulioo
 ```
 
-The plugin defaults to the no-token **sandbox** endpoint
-(`https://mcp.trulioo.com/sandbox/mcp`), so it works the moment you install it.
-Sandbox returns synthetic data - no PII, no cost.
+The plugin connects to the hosted Trulioo MCP server at
+`https://mcp.trulioo.com/mcp` using employee OAuth. On the first protected tool
+call, Claude opens the Trulioo authorization flow and you sign in as yourself.
+No OAuth token or client secret is stored in the plugin.
+
+ChatGPT is supported through the same endpoint and OAuth flow via an
+administrator-registered MCP connection - see
+[`trulioo-mcp/CHATGPT.md`](trulioo-mcp/CHATGPT.md).
 
 ## What you get
 
@@ -36,10 +41,14 @@ the OAuth 2.1 configuration for live verifications.
 ## Repository layout
 
 ```
-.claude-plugin/marketplace.json   # the marketplace catalog
+.claude-plugin/marketplace.json   # the Claude Code marketplace catalog
+.agents/plugins/marketplace.json  # the ChatGPT (Codex) marketplace catalog
 trulioo-mcp/                       # the installable plugin payload
-  .claude-plugin/plugin.json
-  .mcp.json                        # points at the hosted sandbox endpoint
+  .claude-plugin/plugin.json       # Claude Code plugin manifest
+  .codex-plugin/plugin.json        # ChatGPT plugin manifest
+  .mcp.json                        # points at https://mcp.trulioo.com/mcp (OAuth)
+  .app.json / .app.json.example    # ChatGPT MCP connection binding
+  CHATGPT.md                       # ChatGPT administrator runbook
   skills/ commands/ agents/
 ```
 

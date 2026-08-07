@@ -83,18 +83,28 @@ if session abandoned: docv_cancel_session(session_id)
 
 ## Generative UI (A2UI) - experimental
 
-When the client supports A2UI and the server has `TRULIOO_ENABLE_A2UI=true`, prefer
-`docv_render_capture` over hand-delivering a URL:
+The integration is two-tier by client capability:
 
-- `docv_render_capture` (args: `country_code`, optional `capture_method`, `package_id`,
-  and `mode`) creates the session AND returns an `application/a2ui+json` surface:
-  - `mode="qr"` (default) - a scannable QR + short code + desktop link (`QrHandoff`
-    custom component). Best for desktop -> mobile handoff.
-  - `mode="in_chat"` - mounts the certified Trulioo capture SDK inline
-    (`TruliooCapture` custom component, `@trulioo/kyc-documents-capture`).
-- After the user captures, the client fires `a2ui_action` name `capture_complete`
-  with the `session_id`; the server polls `docv_get_result` and returns the verdict.
-- The custom components use the Prism catalog (`.../catalogs/prism/catalog.json`).
+- **A2UI-capable client** (server has `TRULIOO_ENABLE_A2UI=true`): prefer
+  `docv_render_capture` - A2UI wraps the SDK and embeds it directly in the chat.
+- **Non-A2UI client / orchestration**: fall back to `docv_create_session`, deliver
+  the QR / deep link, and poll `docv_get_result` (see "Session flow" above).
+
+`docv_render_capture` (args: `country_code`, optional `capture_method`, `package_id`,
+and `mode`) creates the session AND returns an `application/a2ui+json` surface:
+
+- `mode="auto"` (default, preferred) - embeds the certified device-aware Trulioo DocV
+  **UI SDK** (`@trulioo/kyc-documents`) in-chat via the `TruliooCapture` custom
+  component. The UI SDK renders the ENTIRE experience from the short code (document
+  selection, guidance, camera, liveness, retries, result) and adapts to the device -
+  camera on a phone, its own continue-on-your-phone handoff on a computer - so one
+  surface is the complete device-aware path. The session's secure link rides along as
+  a fallback. `mode="in_chat"`/`"inline"` are aliases of `auto`.
+- `mode="qr"` - renders only the phone handoff (QR + short code + link) via the
+  `QrHandoff` custom component, for clients that prefer to hand off to a phone.
+- When the SDK reports completion the client fires `a2ui_action` name `capture_complete`
+  with the `session_id`; the server then polls `docv_get_result` and returns the verdict.
+- The custom components use the internal catalog (`.../catalogs/prism/catalog.json`).
   Capture stays inside the capability-manifest boundary: no image bytes cross MCP,
   the certified viewport is never overlaid, and the SDK is loaded (not transpiled).
 

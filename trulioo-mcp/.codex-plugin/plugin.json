@@ -1,0 +1,43 @@
+{
+  "name": "trulioo-mcp",
+  "version": "0.2.0",
+  "description": "Trulioo identity verification through the hosted Trulioo MCP server.",
+  "author": {
+    "name": "Trulioo",
+    "email": "mcp@trulioo.com",
+    "url": "https://mcp.trulioo.com"
+  },
+  "homepage": "https://mcp.trulioo.com",
+  "license": "UNLICENSED",
+  "keywords": [
+    "identity",
+    "kyc",
+    "kyb",
+    "aml",
+    "docv",
+    "age-assurance",
+    "verification",
+    "compliance",
+    "trulioo"
+  ],
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "Trulioo MCP",
+    "shortDescription": "Identity verification through Trulioo MCP",
+    "longDescription": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
+    "developerName": "Trulioo",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://mcp.trulioo.com",
+    "defaultPrompt": [
+      "Verify a person's identity with Trulioo",
+      "Run business due diligence with Trulioo",
+      "Screen a person or business for AML risk"
+    ],
+    "screenshots": []
+  }
+}
