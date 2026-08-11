@@ -1,0 +1,3 @@
+# The Ed25519 signing private key never gets committed. The detached model means
+# only the public key (embedded in attestation.json) is needed to verify.
+signing-key.local.pem

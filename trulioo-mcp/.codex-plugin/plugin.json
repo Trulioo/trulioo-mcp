@@ -1,7 +1,7 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.2.0",
-  "description": "Trulioo identity verification through the hosted Trulioo MCP server.",
+  "version": "0.3.0",
+  "description": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",

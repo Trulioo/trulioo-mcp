@@ -17,24 +17,32 @@ clients. Phase 1 (Claude Code) and Phase 2 (ChatGPT) are independent after that
   (authorization code + PKCE). It exposes the full Trulioo tool surface: KYC,
   KYB, AML screening, document verification (DocV), age assurance, and business
   monitoring.
-- **One package** in the private repo `github.com/trulioo/trulioo-mcp`. The
-  package holds no secret - it points clients at the server and (for Claude)
-  bundles skills, workflow commands, and the `identity-orchestrator` agent.
+- **One package** in the repo `github.com/Trulioo/trulioo-mcp`, published by the
+  rel- tag pipeline (issuer-signed, `v<version>` tagged). The package holds no
+  secret - it points clients at the server and (for Claude) bundles skills,
+  workflow commands, and the `identity-orchestrator` agent.
 
 You are NOT distributing credentials. Installation contains no OAuth token and
 no client secret.
+
+> Repo visibility: this runbook covers the **internal employee rollout**, where the
+> repo is PRIVATE and employees install with GitHub org read access (+ VPN). For
+> **public/external** installs (`/plugin marketplace add Trulioo/trulioo-mcp` from
+> any machine, no org access), the mirror must be made PUBLIC - a URL-based
+> marketplace only fetches `marketplace.json`, so the payload has to live in a repo
+> the installing client can clone (DISTRIBUTION.md).
 
 ---
 
 ## Phase 0 - Prerequisite (one time, unblocks everything)
 
 Both the Claude and ChatGPT install paths pull the package from
-`github.com/trulioo/trulioo-mcp`. Until the package is published there at the
-version you want, `/plugin marketplace add trulioo/trulioo-mcp` fails for
+`github.com/Trulioo/trulioo-mcp`. Until the package is published there at the
+version you want, `/plugin marketplace add Trulioo/trulioo-mcp` fails for
 everyone.
 
-1. Confirm the private repo `github.com/trulioo/trulioo-mcp` exists and contains
-   the `0.2.0` package. The published root must contain:
+1. Confirm the private repo `github.com/Trulioo/trulioo-mcp` exists and contains
+   the `0.3.0` package. The published root must contain:
 
    ```
    .claude-plugin/marketplace.json     # Claude Code catalog
@@ -50,16 +58,16 @@ everyone.
    ```
 
 2. Verify the marketplace `source` points at GitHub (not the internal GitLab
-   monorepo) and the version is `0.2.0`:
+   monorepo) and the version is `0.3.0`:
 
    ```
    source: git-subdir
-   url:    https://github.com/trulioo/trulioo-mcp.git
+   url:    https://github.com/Trulioo/trulioo-mcp.git
    path:   trulioo-mcp
-   ref:    main
+   ref:    v0.3.0
    ```
 
-3. Pin a release tag (`v0.2.0`) for the pilot so installs are reproducible.
+3. Pin a release tag (`v0.3.0`) for the pilot so installs are reproducible.
    Install from the tag, not from `main`, during a controlled rollout.
 
 4. Grant the pilot group **read access** to the private GitHub org/repo. Claude
@@ -90,7 +98,7 @@ That is the OAuth challenge - the server is up and protected.
 On a machine with corporate VPN and GitHub org access:
 
 ```
-/plugin marketplace add trulioo/trulioo-mcp
+/plugin marketplace add Trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
@@ -111,7 +119,7 @@ the tagged ref per your Claude Code version's marketplace syntax.
 Publish these two commands plus the prerequisites (VPN on, GitHub org access):
 
 ```
-/plugin marketplace add trulioo/trulioo-mcp
+/plugin marketplace add Trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
@@ -156,7 +164,7 @@ The full detail lives in [CHATGPT.md](CHATGPT.md). This is the sequence:
 ### 2.4 Install and authenticate (administrator)
 
 ```
-codex plugin marketplace add trulioo/trulioo-mcp --ref v0.2.0
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.0
 ```
 
 1. Restart the ChatGPT desktop app.
@@ -185,7 +193,7 @@ Run these before declaring the rollout done.
 
 - [ ] `POST https://mcp.trulioo.com/mcp` returns `401` + `WWW-Authenticate`
       (endpoint up and protected).
-- [ ] `github.com/trulioo/trulioo-mcp` is published at `0.2.0` with the layout
+- [ ] `github.com/Trulioo/trulioo-mcp` is published at `0.3.0` with the layout
       above; marketplace `source` is the GitHub repo, not GitLab.
 - [ ] Claude Code: `/plugin install trulioo-mcp@trulioo` succeeds on a machine
       with VPN + GitHub access; first protected call opens Trulioo OAuth and

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "trulioo-mcp",
+  "version": "0.3.0",
+  "description": "Trulioo identity verification for AI agents. Connects to the hosted Trulioo MCP server using employee OAuth and bundles product skills, guided workflow commands, and an identity-orchestration agent for KYC, KYB, AML, document verification, age assurance, and business monitoring.",
+  "author": {
+    "name": "Trulioo",
+    "email": "mcp@trulioo.com",
+    "url": "https://mcp.trulioo.com"
+  },
+  "homepage": "https://mcp.trulioo.com",
+  "repository": "https://github.com/Trulioo/trulioo-mcp",
+  "license": "UNLICENSED",
+  "keywords": [
+    "identity",
+    "kyc",
+    "kyb",
+    "aml",
+    "docv",
+    "age-assurance",
+    "verification",
+    "compliance",
+    "trulioo"
+  ],
+  "extensions": {
+    "com.trulioo.kya": {
+      "attestation": "./com.trulioo.kya/attestation.json",
+      "attestation_url": "https://lumina.trulioo.com/plugin/attestation.json",
+      "issuer_id": "kya:trulioo:plugin-issuer",
+      "issuer_uri": "https://identity.trulioo.com",
+      "verify": "node attest-plugin.mjs --verify"
+    },
+    "com.anthropic.claude-code": {
+      "displayName": "Trulioo MCP",
+      "mcpServers": "./.mcp.json",
+      "skills": "./skills/",
+      "commands": [
+        "./commands/kyc-onboarding.md",
+        "./commands/kyb-due-diligence.md",
+        "./commands/aml-investigation.md",
+        "./commands/age-verification.md",
+        "./commands/docv-verification.md",
+        "./commands/monitoring-enrollment.md"
+      ],
+      "agents": [
+        "./agents/identity-orchestrator.md"
+      ]
+    },
+    "com.anthropic.claude-desktop": {
+      "displayName": "Trulioo MCP",
+      "mcpServers": "./.mcp.json",
+      "consumes": ["mcpServers"],
+      "note": "Claude Desktop consumes the remote MCP server (add-by-URL custom connector, OAuth 2.1). Skills, commands, and the identity-orchestrator agent are Claude Code only; Desktop ignores them. The MCP endpoint URL is the same across every plugin version, so upgrading the plugin never changes what a Desktop connector points at.",
+      "install": {
+        "kind": "remote-mcp-connector",
+        "url": "https://mcp.trulioo.com/mcp",
+        "auth": "oauth2.1-authorization-code-pkce"
+      }
+    },
+    "com.openai.chatgpt": {
+      "apps": "./.app.json",
+      "interface": {
+        "displayName": "Trulioo MCP",
+        "shortDescription": "Identity verification through Trulioo MCP",
+        "longDescription": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
+        "developerName": "Trulioo",
+        "category": "Productivity",
+        "capabilities": [
+          "Interactive",
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://mcp.trulioo.com",
+        "defaultPrompt": [
+          "Verify a person's identity with Trulioo",
+          "Run business due diligence with Trulioo",
+          "Screen a person or business for AML risk"
+        ],
+        "screenshots": []
+      }
+    }
+  }
+}

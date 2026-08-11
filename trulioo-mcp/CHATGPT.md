@@ -26,7 +26,7 @@ Use these names consistently:
 ## Before the administrator starts
 
 Publish the plugin package to the private
-`github.com/trulioo/trulioo-mcp` repository used for distribution.
+`github.com/Trulioo/trulioo-mcp` repository used for distribution.
 
 The GitHub package must contain:
 
@@ -84,7 +84,7 @@ On the test administrator's machine, authenticate Git for the private Trulioo
 GitHub organization, then add the marketplace:
 
 ```
-codex plugin marketplace add trulioo/trulioo-mcp --ref main
+codex plugin marketplace add Trulioo/trulioo-mcp --ref main
 ```
 
 Use a release tag instead of `main` after the pilot is stable.

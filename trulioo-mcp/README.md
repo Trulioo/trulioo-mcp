@@ -14,11 +14,11 @@ and rollback): **[IT-SETUP.md](IT-SETUP.md)**. The essentials, in order:
 ### Prerequisite: publish the package to the private GitHub repo
 
 Both the Claude and ChatGPT install paths pull the package from the private
-`github.com/trulioo/trulioo-mcp` repository. That repo must exist and contain
+`github.com/Trulioo/trulioo-mcp` repository. That repo must exist and contain
 this package before any install command works - until it does,
-`/plugin marketplace add trulioo/trulioo-mcp` fails for everyone.
+`/plugin marketplace add Trulioo/trulioo-mcp` fails for everyone.
 
-Publish the package to `github.com/trulioo/trulioo-mcp` (see the file list in
+Publish the package to `github.com/Trulioo/trulioo-mcp` (see the file list in
 [CHATGPT.md](CHATGPT.md) under "Before the administrator starts"), then pin a
 release tag for the pilot instead of installing from `main`.
 
@@ -32,7 +32,7 @@ release tag for the pilot instead of installing from `main`.
 Point employees at these two commands (VPN + GitHub org access required):
 
 ```
-/plugin marketplace add trulioo/trulioo-mcp
+/plugin marketplace add Trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
