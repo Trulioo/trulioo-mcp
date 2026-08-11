@@ -16,32 +16,37 @@ it attests *who published this plugin* and *that it has not been altered*.
   Serialization with embedded payload). Everything a
   verifier needs; safe to publish.
 - **`signing-key.local.pem`** - gitignored. The local dev signing key. Production
-  signing is the deployed KYA issuer (Halo, KMS Ed25519, identity.trulioo.com).
+  signing is the deployed Trulioo KYA issuer (KMS Ed25519, identity.trulioo.com),
+  whose `kid` resolves in the issuer's published JWKS.
 
 ## Verify
 
 From the source repo (the signer/verifier script lives at the plugin root):
 
 ```
-# from core/prism/mcp-server/plugin/
-node attest-plugin.mjs --verify
+# from the plugin root (where attest-plugin.mjs lives)
+node attest-plugin.mjs --verify            # integrity
+node attest-plugin.mjs --verify --resolve  # + issuer provenance (kid in the JWKS)
 ```
 
-If you downloaded the hosted copy from <https://lumina.trulioo.com/plugin/>, the
-script is not part of the payload - verify against the self-contained
-`bundle.json` (each file's bytes + sha256 are embedded) or re-run the four checks
-from the source repo above.
+`attest-plugin.mjs` ships at the repo root next to this package, so a clone can
+run the verify commands directly.
 
-Checks, fail-closed: (1) the `kid` is the RFC 7638 thumbprint of the embedded
-key; (2) the Ed25519 signature verifies; (3) the signed payload matches the
-presented claims; (4) the `subject_digest` recomputed from the plugin on disk
-matches what was signed - i.e. the plugin is byte-identical to what was attested.
+Checks, fail-closed: (1) the Ed25519 signature verifies; (2) the signed payload
+matches the presented claims; (3) the `subject_digest` recomputed from the plugin
+on disk matches what was signed - i.e. the plugin is byte-identical to what was
+attested; and, with `--resolve`, (4) the signing `kid` resolves in the Trulioo
+issuer's published JWKS - i.e. it was signed by the named Trulioo KYA issuer, not
+an arbitrary key.
 
 ## Wire format
 
-Mirrors the KYA attestation stack in `core/prism/mcp-server/src/tools/kya.rs`:
-RFC 8785 (JCS) canonicalization, RFC 7638 JWK thumbprint as `kid`, Ed25519
-signatures. The `subject_digest` is a sha256 over the JCS form of a
-`{file: sha256}` map, so it is order- and formatting-independent.
+Mirrors the Trulioo KYA attestation stack: RFC 8785 (JCS) canonicalization,
+Ed25519 signatures, and issuer resolution via the published JWKS - the same
+authority + resolution model that backs agent attestations
+(`GET /kya/attestation/{fingerprint}` on `identity.trulioo.com`). The
+`subject_digest` is a sha256 over the JCS form of a `{file: sha256}` map, so it is
+order- and formatting-independent.
 
-Public attestation page: <https://lumina.trulioo.com/plugin/>
+Provenance resolves through the issuer JWKS (`--verify --resolve`), not a
+hosted-copy URL - the released bundle carries no static attestation host.

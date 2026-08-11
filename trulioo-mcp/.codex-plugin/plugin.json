@@ -1,6 +1,6 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
   "author": {
     "name": "Trulioo",

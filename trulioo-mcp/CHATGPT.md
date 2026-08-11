@@ -84,10 +84,11 @@ On the test administrator's machine, authenticate Git for the private Trulioo
 GitHub organization, then add the marketplace:
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref main
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.0
 ```
 
-Use a release tag instead of `main` after the pilot is stable.
+Pin the release tag (`--ref v0.3.0`) so pilot installs are reproducible; the tag
+is issuer-signed and immutable. (`--ref main` tracks the latest, unpinned.)
 
 1. Restart the ChatGPT desktop app.
 2. Open **Plugins** and select the `Trulioo` marketplace source.

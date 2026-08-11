@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "trulioo-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Trulioo identity verification for AI agents. Connects to the hosted Trulioo MCP server using employee OAuth and bundles product skills, guided workflow commands, and an identity-orchestration agent for KYC, KYB, AML, document verification, age assurance, and business monitoring.",
   "author": {
     "name": "Trulioo",
@@ -25,10 +25,9 @@
   "extensions": {
     "com.trulioo.kya": {
       "attestation": "./com.trulioo.kya/attestation.json",
-      "attestation_url": "https://lumina.trulioo.com/plugin/attestation.json",
       "issuer_id": "kya:trulioo:plugin-issuer",
       "issuer_uri": "https://identity.trulioo.com",
-      "verify": "node attest-plugin.mjs --verify"
+      "verify": "node attest-plugin.mjs --verify --resolve"
     },
     "com.anthropic.claude-code": {
       "displayName": "Trulioo MCP",

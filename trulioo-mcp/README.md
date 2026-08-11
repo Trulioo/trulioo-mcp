@@ -1,10 +1,31 @@
-# Trulioo MCP - Claude Code and ChatGPT plugins
+# Trulioo MCP - portable, KYA-signed Agent Plugin
 
-Identity verification for AI agents. This package connects Claude Code and
-ChatGPT to the hosted **Trulioo MCP server** at
+Identity verification for AI agents. This package connects Claude Code, ChatGPT,
+Codex, and Claude Desktop to the hosted **Trulioo MCP server** at
 `https://mcp.trulioo.com/mcp` using the existing employee OAuth flow. No OAuth
 token or client secret is stored in the package - every employee authenticates
 to Trulioo as themselves on first use.
+
+**One portable bundle (Agent Plugins 1.0.0).** The package follows the
+[agent-plugins.org](https://agent-plugins.org) open standard: a canonical
+`plugin.json` + `mcp.json` + `skills/`, with each client's config under a
+reverse-DNS `extensions` namespace (`com.anthropic.claude-code`,
+`com.openai.chatgpt`, `com.anthropic.claude-desktop`). The per-client manifests
+are generated projections of the one canonical manifest.
+
+**KYA-signed provenance.** The bundle carries a `com.trulioo.kya` attestation: an
+Ed25519 signature over a content digest of the manifest, skills, commands, and
+agent. The released bundle is signed by the **Trulioo KYA issuer** (the same
+authority that signs agent identities), so its `kid` resolves in the issuer's
+published JWKS. Anyone can verify who published the plugin and that it hasn't been
+altered - `attest-plugin.mjs` ships at the repo root next to this package:
+
+```
+node attest-plugin.mjs --verify            # integrity: bytes match what was signed
+node attest-plugin.mjs --verify --resolve  # + provenance: kid resolves in the Trulioo JWKS
+```
+
+See `com.trulioo.kya/README.md` for the attestation model.
 
 ## For the IT administrator
 
@@ -60,15 +81,25 @@ sharing sequence.
 - **Agent `identity-orchestrator`** - picks the right tools and chains them into
   a compliant onboarding decision.
 
+Note: **Claude Desktop** consumes the remote MCP server (add-by-URL connector);
+the skills, commands, and agent are Claude Code features and don't apply there.
+
+## Verifying the attestation
+
+`attestation.json` (under `com.trulioo.kya/`) is a detached Ed25519 proof over a
+content digest of the manifest + skills + commands + agent. Verify integrity with
+just the file, or verify provenance against the live issuer JWKS:
+
+```
+node attest-plugin.mjs --verify            # integrity: bytes match what was signed
+node attest-plugin.mjs --verify --resolve  # provenance: kid resolves in the Trulioo JWKS
+```
+
 ## Maintenance
 
-This plugin is generated from the server's single sources of truth and kept in
-lockstep by CI. Do not hand-edit `skills/*/SKILL.md`; regenerate with:
-
-```
-node core/prism/mcp-server/plugin/sync-plugin.mjs
-```
-
-The skill bodies come from `docs/site/.well-known/skills/`; the command set is
-verified against the workflow prompts in `src/prompts.rs`. CI runs
-`sync-plugin.mjs --check` and fails on drift.
+This package is a **generated mirror** - it is produced from the Trulioo MCP
+server's sources of truth and published by CI; do not hand-edit it here. Skill
+bodies, the command set, and the client-manifest projections are regenerated and
+verified against the server on every release (`sync-plugin.mjs --check` gates
+drift), and the KYA attestation is re-signed. Report issues to
+[mcp@trulioo.com](mailto:mcp@trulioo.com).

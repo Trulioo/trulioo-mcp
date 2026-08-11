@@ -104,7 +104,7 @@ and `mode`) creates the session AND returns an `application/a2ui+json` surface:
   `QrHandoff` custom component, for clients that prefer to hand off to a phone.
 - When the SDK reports completion the client fires `a2ui_action` name `capture_complete`
   with the `session_id`; the server then polls `docv_get_result` and returns the verdict.
-- The custom components use the internal catalog (`.../catalogs/prism/catalog.json`).
+- The custom components resolve from the server's capability-manifest catalog.
   Capture stays inside the capability-manifest boundary: no image bytes cross MCP,
   the certified viewport is never overlaid, and the SDK is loaded (not transpiled).
 
