@@ -1,26 +1,58 @@
-# Trulioo MCP - Claude Code plugin
+# Trulioo MCP - portable, KYA-signed Agent Plugin
 
 Identity verification for AI agents. This repository is the public, installable
-distribution of the **Trulioo MCP** Claude Code plugin: it connects any Claude
-Code session to Trulioo's hosted MCP server (KYC, KYB, AML screening, document
-verification, age assurance, and business monitoring) and bundles product
-skills, guided workflow commands, and an identity-orchestration agent.
+distribution of the **Trulioo MCP** plugin - a portable
+[Agent Plugins](https://agent-plugins.org) 1.0.0 bundle that connects Claude
+Code, ChatGPT, OpenAI Codex, and Claude Desktop to Trulioo's hosted MCP server
+(KYC, KYB, AML screening, document verification, age assurance, and business
+monitoring) and bundles product skills, guided workflow commands, and an
+identity-orchestration agent.
+
+One canonical `plugin.json` + `mcp.json` + `skills/`; each client's config lives
+under a reverse-DNS `extensions` namespace, so a single bundle installs
+everywhere the standard is read.
 
 ## Install
 
+**Claude Code** - install the plugin (skills + guided commands + agent):
+
 ```
-/plugin marketplace add trulioo/trulioo-mcp
+/plugin marketplace add Trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
-The plugin connects to the hosted Trulioo MCP server at
-`https://mcp.trulioo.com/mcp` using employee OAuth. On the first protected tool
-call, Claude opens the Trulioo authorization flow and you sign in as yourself.
-No OAuth token or client secret is stored in the plugin.
+**OpenAI Codex:**
 
-ChatGPT is supported through the same endpoint and OAuth flow via an
-administrator-registered MCP connection - see
-[`trulioo-mcp/CHATGPT.md`](trulioo-mcp/CHATGPT.md).
+```
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.1
+```
+
+**ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
+URL: `https://mcp.trulioo.com/mcp` (OAuth 2.1). Desktop uses the MCP tools; the
+skills, commands, and agent are Claude Code features. See
+[`trulioo-mcp/CHATGPT.md`](trulioo-mcp/CHATGPT.md) for the ChatGPT admin runbook.
+
+All clients connect to the hosted Trulioo MCP server at
+`https://mcp.trulioo.com/mcp`. On the first protected tool call you complete the
+Trulioo OAuth flow and sign in as yourself; no OAuth token or client secret is
+stored in the plugin.
+
+## KYA-signed provenance
+
+The bundle carries a `com.trulioo.kya` attestation: an Ed25519 signature over a
+content digest of the manifest, skills, commands, and agent. The released bundle
+is signed by the **Trulioo KYA issuer** (the same authority that signs agent
+identities), so its `kid` resolves in the issuer's published JWKS. Anyone can
+verify who published the plugin and that it hasn't been altered - `attest-plugin.mjs`
+ships at the repo root:
+
+```
+node attest-plugin.mjs --verify            # integrity: bytes match what was signed
+node attest-plugin.mjs --verify --resolve  # + provenance: kid resolves in the Trulioo JWKS
+```
+
+See [`trulioo-mcp/com.trulioo.kya/README.md`](trulioo-mcp/com.trulioo.kya/README.md)
+for the attestation model.
 
 ## What you get
 
@@ -41,23 +73,27 @@ the OAuth 2.1 configuration for live verifications.
 ## Repository layout
 
 ```
-.claude-plugin/marketplace.json   # the Claude Code marketplace catalog
-.agents/plugins/marketplace.json  # the ChatGPT (Codex) marketplace catalog
+attest-plugin.mjs                 # portable KYA attestation verifier (node, stdlib only)
+.claude-plugin/marketplace.json   # Claude Code marketplace catalog
+.agents/plugins/marketplace.json  # ChatGPT (Codex) marketplace catalog
 trulioo-mcp/                       # the installable plugin payload
-  .claude-plugin/plugin.json       # Claude Code plugin manifest
-  .codex-plugin/plugin.json        # ChatGPT plugin manifest
-  .mcp.json                        # points at https://mcp.trulioo.com/mcp (OAuth)
+  plugin.json                      # canonical Agent Plugins 1.0.0 manifest
+  mcp.json                         # points at https://mcp.trulioo.com/mcp (OAuth)
+  .claude-plugin/plugin.json       # Claude Code projection
+  .codex-plugin/plugin.json        # ChatGPT/Codex projection
   .app.json / .app.json.example    # ChatGPT MCP connection binding
-  CHATGPT.md                       # ChatGPT administrator runbook
+  com.trulioo.kya/                 # the KYA attestation (attestation.json + README)
   skills/ commands/ agents/
+  CHATGPT.md                       # ChatGPT administrator runbook
 ```
 
 ## About this repository
 
 This is a **generated, published mirror**. The plugin's skills and commands are
 produced from the Trulioo MCP server's tool definitions and released here by an
-automated pipeline. Files are not hand-edited in this repository. For issues,
-questions, or credential requests, contact <mcp@trulioo.com>.
+automated pipeline, and the KYA attestation is re-signed on each release. Do not
+hand-edit the payload. For issues, questions, or credential requests, contact
+<mcp@trulioo.com>.
 
 ## License
 
