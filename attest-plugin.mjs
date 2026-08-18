@@ -319,7 +319,7 @@ async function resolveIssuerJwk(kid) {
   return jwk;
 }
 
-async function doVerify(resolve) {
+async function doVerify(resolve, requireIssuer) {
   if (!existsSync(ATTESTATION)) fail(`no attestation at ${relative(HERE, ATTESTATION)} (run --sign)`);
   const att = JSON.parse(readFileSync(ATTESTATION, "utf8"));
   const issuerMode = att.mode === "issuer";
@@ -333,15 +333,31 @@ async function doVerify(resolve) {
     // the file. Trusting an embedded key here would let a forged attestation.json
     // (mode:"issuer" + its own public_jwk + self-signed jws) pass as issuer
     // provenance, so --resolve is mandatory and any self-provided key is ignored.
-    if (!resolve) {
+    if (!resolve && !requireIssuer) {
       fail("issuer-mode attestation requires --resolve (verifies the kid against the "
         + "issuer JWKS); an embedded key is never trusted for issuer provenance");
     }
-    const jwk = await resolveIssuerJwk(att.kid);
-    resolvedVia = `issuer JWKS (${JWKS_URL})`;
-    signedClaims = verifyCompactJws(att.jws, jwk, ARTIFACT_TYP);
-    // The signed payload must match the presented claims mirror.
-    if (jcs(signedClaims) !== jcs(att.claims)) fail("signed payload != presented claims");
+    if (resolve) {
+      const jwk = await resolveIssuerJwk(att.kid);
+      resolvedVia = `issuer JWKS (${JWKS_URL})`;
+      signedClaims = verifyCompactJws(att.jws, jwk, ARTIFACT_TYP);
+      // The signed payload must match the presented claims mirror.
+      if (jcs(signedClaims) !== jcs(att.claims)) fail("signed payload != presented claims");
+    } else {
+      // OFFLINE INTEGRITY ONLY (--require-issuer without --resolve): the MR-time gate
+      // has no route to the issuer JWKS, and the rule above stands - an embedded key
+      // is never trusted for issuer provenance - so the signature is NOT checked here
+      // at all. The payload is decoded WITHOUT verification purely to compare it
+      // against the presented claims mirror and the plugin on disk, which is an
+      // integrity check, not a provenance one. Anything derived from it is untrusted
+      // until the rel- tag runs --resolve. Labeled as such in the output below,
+      // because an unverified decode silently reported as "VALID" is precisely how a
+      // forged attestation would earn trust it never established.
+      signedClaims = JSON.parse(
+        Buffer.from(att.jws.split(".")[1], "base64url").toString("utf8"));
+      if (jcs(signedClaims) !== jcs(att.claims)) fail("signed payload != presented claims");
+      resolvedVia = "NOT VERIFIED (offline: mode + integrity only, no --resolve)";
+    }
   } else {
     // LOCAL DEV: detached JWS, embedded key, kid = RFC 7638 thumbprint.
     const kid = jwkThumbprint(att.public_jwk);
@@ -360,6 +376,18 @@ async function doVerify(resolve) {
     if (jcs(signedClaims) !== jcs(att.claims)) fail("signed payload != presented claims");
     resolvedVia = "embedded key (local dev - NOT issuer-backed)";
     if (resolve) fail("--resolve requires an issuer-signed attestation; this is a local dev key");
+    // OFFLINE mode gate, for the MR-time job that has no route to the issuer JWKS.
+    // This asserts one JSON field and proves nothing cryptographically - a forged
+    // mode:"issuer" document passes it. That is fine: it is not a provenance check,
+    // it is a "do not MERGE a dev-key attestation" check. It exists because
+    // deploy:sites publishes on merge while the real --resolve gate only runs at the
+    // rel- tag, so without it a dev key goes live for the whole window in between.
+    if (requireIssuer) {
+      fail("--require-issuer: attestation is mode:\"local\" (dev key). Sign this version "
+        + "through the issuer before merging - see plugin/DISTRIBUTION.md \"Signing a "
+        + "version\". Merging this would publish a dev-key attestation to "
+        + "lumina.trulioo.com until the next rel- tag.");
+    }
   }
 
   // INTEGRITY: recompute the subject from the plugin ON DISK and compare (both modes).
@@ -373,24 +401,46 @@ async function doVerify(resolve) {
   // Issuer/plugin live at top-level in issuer-mode, under claims in local-mode.
   const plugin = signedClaims.plugin || att.plugin;
   const issuer = att.issuer || signedClaims.issuer || ISSUER;
-  console.log("attestation VALID");
+  // Do not print "VALID" when no signature was checked. The word is the whole point
+  // of running this, and applying it to an integrity-only pass would make the CI log
+  // read as a provenance proof.
+  console.log(issuerMode && !resolve ? "attestation INTEGRITY OK (signature unverified)"
+                                     : "attestation VALID");
   console.log(`  plugin         ${plugin.name}@${plugin.version}`);
   console.log(`  issuer         ${issuer.name} (${issuer.issuer_id})`);
   console.log(`  kid            ${att.kid}`);
   console.log(`  trust          ${resolvedVia}`);
   console.log(`  subject_digest ${subject_digest}`);
   console.log(`  sealed files   ${Object.keys(files).length}`);
+  // A local-mode attestation verifies perfectly against its OWN embedded key, so a
+  // bare --verify is green and says nothing about provenance. sync-plugin.mjs copies
+  // this same file to the PUBLIC hosted paths, so a green local-mode verify means
+  // lumina.trulioo.com is serving a dev-key attestation to anyone who fetches it.
+  // Say so here rather than leaving it to be inferred from the `trust` line.
+  if (!issuerMode) {
+    console.log("");
+    console.log("WARNING: dev-key attestation - NOT issuer provenance. If this is committed,");
+    console.log("  the hosted copies (lumina.trulioo.com/plugin/attestation.json and");
+    console.log("  /.well-known/agent-plugin-attestation.json) serve a dev key too, and the");
+    console.log("  release mirror will REFUSE to publish it (publish-plugin-mirror.sh).");
+    console.log("  Sign this version through the issuer: see plugin/DISTRIBUTION.md");
+    console.log("  \"Signing a version\", then commit the result.");
+  }
 }
 
 const args = process.argv.slice(2);
 const mode = args[0];
 const resolveFlag = args.includes("--resolve");
+const requireIssuerFlag = args.includes("--require-issuer");
 // Await the entrypoint and funnel ANY throw (a non-JSON issuer response, a
 // malformed body missing jws/kid, a network error) into the clean
 // "ATTESTATION INVALID" path instead of an unhandledRejection stack trace.
 async function main() {
   if (mode === "--sign") await doSign();
-  else if (mode === "--verify" || mode === "--check") await doVerify(resolveFlag);
-  else { console.error("usage: node attest-plugin.mjs --sign | --verify [--resolve]"); process.exit(2); }
+  else if (mode === "--verify" || mode === "--check") await doVerify(resolveFlag, requireIssuerFlag);
+  else {
+    console.error("usage: node attest-plugin.mjs --sign | --verify [--resolve] [--require-issuer]");
+    process.exit(2);
+  }
 }
 main().catch((e) => fail(e && e.message ? e.message : String(e)));

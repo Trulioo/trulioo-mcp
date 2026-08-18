@@ -18,7 +18,10 @@ Ed25519 signature over a content digest of the manifest, skills, commands, and
 agent. The released bundle is signed by the **Trulioo KYA issuer** (the same
 authority that signs agent identities), so its `kid` resolves in the issuer's
 published JWKS. Anyone can verify who published the plugin and that it hasn't been
-altered - `attest-plugin.mjs` ships at the repo root next to this package:
+altered - `attest-plugin.mjs` ships at the root of the PUBLISHED package, next to
+these files. (In the monorepo it lives one level up, at
+`core/prism/mcp-server/plugin/attest-plugin.mjs`, so run `node ../attest-plugin.mjs`
+from here; `publish-plugin-mirror.sh` copies it into the package on publish.)
 
 ```
 node attest-plugin.mjs --verify            # integrity: bytes match what was signed

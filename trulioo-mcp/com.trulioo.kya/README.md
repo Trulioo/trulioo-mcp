@@ -24,7 +24,8 @@ it attests *who published this plugin* and *that it has not been altered*.
 From the source repo (the signer/verifier script lives at the plugin root):
 
 ```
-# from the plugin root (where attest-plugin.mjs lives)
+# from the plugin root (where attest-plugin.mjs lives in the PUBLISHED package;
+# in the monorepo it is one level up - use `node ../../attest-plugin.mjs` from here)
 node attest-plugin.mjs --verify            # integrity
 node attest-plugin.mjs --verify --resolve  # + issuer provenance (kid in the JWKS)
 ```

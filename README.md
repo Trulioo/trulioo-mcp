@@ -24,7 +24,7 @@ everywhere the standard is read.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.1
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.2
 ```
 
 **ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by

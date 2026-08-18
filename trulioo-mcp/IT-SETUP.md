@@ -42,7 +42,7 @@ version you want, `/plugin marketplace add Trulioo/trulioo-mcp` fails for
 everyone.
 
 1. Confirm the private repo `github.com/Trulioo/trulioo-mcp` exists and contains
-   the `0.3.0` package. The published root must contain:
+   the `0.3.2` package. The published root must contain:
 
    ```
    .claude-plugin/marketplace.json     # Claude Code catalog
@@ -58,16 +58,16 @@ everyone.
    ```
 
 2. Verify the marketplace `source` points at GitHub (not the internal GitLab
-   monorepo) and the version is `0.3.0`:
+   monorepo) and the version is `0.3.2`:
 
    ```
    source: git-subdir
    url:    https://github.com/Trulioo/trulioo-mcp.git
    path:   trulioo-mcp
-   ref:    v0.3.0
+   ref:    v0.3.2
    ```
 
-3. Pin a release tag (`v0.3.0`) for the pilot so installs are reproducible.
+3. Pin a release tag (`v0.3.2`) for the pilot so installs are reproducible.
    Install from the tag, not from `main`, during a controlled rollout.
 
 4. Grant the pilot group **read access** to the private GitHub org/repo. Claude
@@ -85,13 +85,52 @@ everyone.
 
 ### 1.1 Verify the endpoint (administrator)
 
+Run this **on the corporate VPN**. Bare `/mcp` is not in the WAF's public carve-out
+(only `/demo`, `/mock/mcp`, `/sandbox/mcp`, and the docs paths are), so off-VPN you
+get a WAF `401` with no `www-authenticate` - which is the exact ambiguity the header
+check below exists to resolve.
+
 ```
-curl -s -o /dev/null -w "%{http_code}\n" -X POST https://mcp.trulioo.com/mcp \
-  -H 'content-type: application/json' -d '{}'
+curl -s -D - -o /dev/null -X POST https://mcp.trulioo.com/mcp \
+  -H 'content-type: application/json' -d '{}' | grep -i '^HTTP/\|^www-authenticate'
 ```
 
-Expect `401` with a `WWW-Authenticate: Bearer resource_metadata=...` header.
-That is the OAuth challenge - the server is up and protected.
+Expect exactly this (verified 2026-08-16):
+
+```
+HTTP/2 401
+www-authenticate: Bearer resource_metadata="https://mcp.trulioo.com/.well-known/oauth-protected-resource/mcp"
+```
+
+That is the RFC 9728 OAuth challenge - the server is up and protected. Print the
+header rather than just the status code: a bare `401` is **not** sufficient
+evidence of OAuth, because the corp-VPN WAF in front of this distribution also
+blocks with a custom `401` response (`platform/infra/prism-docs-site/waf.tf`,
+rule `corp-vpn-only-except-public-trial-paths`). The two are only
+distinguishable by the presence of `www-authenticate`. Confirm the challenge
+resolves - this is the URL the client will fetch next:
+
+```
+curl -s https://mcp.trulioo.com/.well-known/oauth-protected-resource/mcp
+# {"authorization_servers":["https://mcp.trulioo.com"],"bearer_methods_supported":["header"],
+#  "resource":"https://mcp.trulioo.com/mcp","scopes_supported":["verify","read"]}
+```
+
+> Known wart, not a blocker: the **bare** `/.well-known/oauth-protected-resource`
+> (no `/mcp` suffix) returns the docs-site HTML shell with `200`, not metadata and
+> not the truthful `404` JSON its edge function is supposed to emit. Spec clients
+> follow the resource-specific URL from `www-authenticate` and are unaffected;
+> a client that probes only the bare path will choke on HTML.
+>
+> The cause is IaC drift, and it matters beyond the wart. The checked-in edge
+> function (`platform/infra/prism-docs-site/cloudfront.tf`) both emits that `404`
+> JSON **and** rewrites `/mcp` -> `/sandbox/mcp` (the open, no-token sandbox). Live,
+> neither is true: the bare well-known serves HTML and `/mcp` answers a real OAuth
+> challenge. So the DEPLOYED function is not the one in that file - the distribution
+> was CLI-managed. **Do not blind-apply `prism-docs-site` against zenith**: it would
+> re-point the documented `/mcp` at the credential-free sandbox and remove the OAuth
+> protection this whole runbook depends on. Reconcile the file to deployed reality
+> first.
 
 ### 1.2 Install on a pilot machine
 
@@ -164,7 +203,7 @@ The full detail lives in [CHATGPT.md](CHATGPT.md). This is the sequence:
 ### 2.4 Install and authenticate (administrator)
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.0
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.2
 ```
 
 1. Restart the ChatGPT desktop app.
@@ -191,9 +230,11 @@ codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.3.0
 
 Run these before declaring the rollout done.
 
-- [ ] `POST https://mcp.trulioo.com/mcp` returns `401` + `WWW-Authenticate`
-      (endpoint up and protected).
-- [ ] `github.com/Trulioo/trulioo-mcp` is published at `0.3.0` with the layout
+- [ ] On corp VPN, `POST https://mcp.trulioo.com/mcp` returns `401` **and** a
+      `www-authenticate: Bearer resource_metadata=...` header (endpoint up and
+      protected). The status alone is not sufficient - the WAF also answers `401`.
+- [ ] The `resource_metadata` URL from that header returns the JSON in step 1.1.
+- [ ] `github.com/Trulioo/trulioo-mcp` is published at `0.3.2` with the layout
       above; marketplace `source` is the GitHub repo, not GitLab.
 - [ ] Claude Code: `/plugin install trulioo-mcp@trulioo` succeeds on a machine
       with VPN + GitHub access; first protected call opens Trulioo OAuth and

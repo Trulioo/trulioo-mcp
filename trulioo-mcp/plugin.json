@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "trulioo-mcp",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Trulioo identity verification for AI agents. Connects to the hosted Trulioo MCP server using employee OAuth and bundles product skills, guided workflow commands, and an identity-orchestration agent for KYC, KYB, AML, document verification, age assurance, and business monitoring.",
   "author": {
     "name": "Trulioo",
@@ -48,7 +48,9 @@
     "com.anthropic.claude-desktop": {
       "displayName": "Trulioo MCP",
       "mcpServers": "./.mcp.json",
-      "consumes": ["mcpServers"],
+      "consumes": [
+        "mcpServers"
+      ],
       "note": "Claude Desktop consumes the remote MCP server (add-by-URL custom connector, OAuth 2.1). Skills, commands, and the identity-orchestrator agent are Claude Code only; Desktop ignores them. The MCP endpoint URL is the same across every plugin version, so upgrading the plugin never changes what a Desktop connector points at.",
       "install": {
         "kind": "remote-mcp-connector",
