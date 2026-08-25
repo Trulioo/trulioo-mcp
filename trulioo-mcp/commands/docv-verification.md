@@ -20,9 +20,11 @@ Follow these steps in order:
    hint (or use a `delivery.webhook_url` instead of polling).
 5. Report the outcome from the terminal result.
 
-Capability tiers: `eid` = NFC chip + MRZ (eIDAS High / NIST IAL3, highest
-assurance), `document` = camera capture + AI fraud models (NIST IAL2),
-`liveness` = certified biometric PAD (ISO/IEC 30107-3).
+Capability tiers: `eid` = NFC chip + MRZ (ICAO 9303, the strongest signal here),
+`document` = camera capture + AI fraud models, `liveness` = certified biometric
+PAD (ISO/IEC 30107-3). Equivalences to an eIDAS level of assurance or a NIST IAL
+are UNVERIFIED here and are not a compliance determination; see
+`assurance_mapping_unverified` in the session response manifest.
 
 Consent: display verbatim consent strings from `config_describe_context` - do
 not paraphrase; jurisdiction-specific wording is legally binding. This is a

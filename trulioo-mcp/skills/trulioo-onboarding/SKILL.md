@@ -59,8 +59,12 @@ Always run in this order:
 | `auth_status` value | Meaning | Fix |
 |---|---|---|
 | `"ok"` | Ready | Proceed |
-| `"error"` | Token acquisition failed | Check `TRULIOO_CLIENT_ID` / `TRULIOO_CLIENT_SECRET` |
-| `"unconfigured"` | No credentials provided | Set credentials or confirm sandbox mode |
+| `"error"` | Token acquisition failed, INCLUDING no credentials configured | Check that `TRULIOO_CLIENT_ID` / `TRULIOO_CLIENT_SECRET` are set, then that they are accepted |
+
+`trulioo_health` reports exactly these two values. There is no `"unconfigured"` status:
+missing credentials and rejected credentials both read as `"error"`, so a caller cannot
+tell them apart from `auth_status` alone - check `sandbox_active` and whether the
+credentials are present before concluding they are wrong (F193).
 
 ## References
 

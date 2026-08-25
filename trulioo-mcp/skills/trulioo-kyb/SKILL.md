@@ -16,8 +16,12 @@ UBO mapping, AML screening, and ongoing monitoring enrollment.
 - B2B onboarding requiring business verification
 - Vendor due diligence and supply chain compliance
 - Corporate structure analysis with UBO discovery
-- Regulatory compliance (FATF, 5AMLD, FinCEN beneficial ownership)
+- Regulatory compliance work touching beneficial ownership (FATF, 5AMLD, FinCEN)
 - Any workflow calling `kyb_search`, `kyb_verify`, `kyb_get_report`, or monitoring tools
+
+Naming a regime is not a mapping to it: no output of this server establishes compliance
+with FATF, 5AMLD or FinCEN, and any such equivalence is UNVERIFIED here and is not a
+compliance determination. The relying party decides what discharges its obligation.
 
 ## Full due-diligence sequence
 
@@ -84,9 +88,32 @@ variant, omit `country_code` for a full global lookup, or set
 { "ubo_discovery": true }
 ```
 
-Maps beneficial ownership chains including indirect ownership. Required for FATF
-Recommendation 24 compliance. Report includes `ubo_persons` array with each
-beneficial owner's percentage ownership and relationship to the entity.
+Whether any ownership comes back is a provisioning matter this server does not
+decide: `ubo_discovery=true` requests the `complete` tier (`Entities=true`
+upstream) and the account's package must be provisioned for it. An account
+without that entitlement gets a normal verification with no ownership in it and
+no error saying why, so an empty result means "this account may not be able to
+ask", never "this business has no beneficial owners".
+
+Maps beneficial ownership chains including indirect ownership. The ownership
+arrives inside the response's appended datasource fields - an ownership hierarchy
+as stringified JSON, alongside directors and officers - and NOT as a flat
+`ubo_persons` array. No tool on this server returns a field by that name, so read
+the appended fields.
+
+**Read `ubo_evidence` before you present any of it.** The response carries
+`ubo_evidence: false` and a `ubo_evidence_note`, because what comes back is a
+supplier's ownership assertion: no edge has a source document, a retrieval date
+or a content hash, and nothing in it was read from a company register. Use it as
+a lead. Do not cite it as a register filing, describe it as verified beneficial
+ownership, or present it on its own as discharging a FATF Recommendation 24
+obligation - it does not establish one. That obligation is about adequate, accurate
+and current beneficial-ownership information, and an unsourced tree cannot be shown
+to be any of the three.
+
+The label travels with the ownership: `kyb_get_partial_result` and `kyb_get_report`
+carry it too, decided from the payload rather than the request, so following a
+`next_action` does not lose the warning.
 
 ## Monitoring enrollment
 

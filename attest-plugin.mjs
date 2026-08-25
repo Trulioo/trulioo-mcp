@@ -196,6 +196,15 @@ async function signViaIssuer(subject, subject_digest, files, manifest) {
     headers["x-developer-secret"] = devSecret || "";
   }
   if (tenantHdr) headers["x-trulioo-tenant"] = tenantHdr;
+  // EDGE credential, not app auth. kya.trulioo.com's WAF blocks any caller outside
+  // the corp-VPN allowlist unless the request matches a carve-out, and the carve-out
+  // for /kya-api/kya/artifact/attest is `x-prism-internal-key == <key> AND uri prefix`
+  // (platform/infra/kya-site/waf.tf). A CI runner's shared NAT is deliberately not
+  // allowlisted, so without this the POST dies at the edge with a bodyless 401 and
+  // never reaches the issuer. Optional: unset for on-VPN/local runs.
+  if (process.env.KYA_EDGE_INTERNAL_KEY) {
+    headers["x-prism-internal-key"] = process.env.KYA_EDGE_INTERNAL_KEY;
+  }
 
   const res = await fetch(ARTIFACT_ATTEST_URL, {
     method: "POST",
@@ -380,7 +389,7 @@ async function doVerify(resolve, requireIssuer) {
     // This asserts one JSON field and proves nothing cryptographically - a forged
     // mode:"issuer" document passes it. That is fine: it is not a provenance check,
     // it is a "do not MERGE a dev-key attestation" check. It exists because
-    // deploy:sites publishes on merge while the real --resolve gate only runs at the
+    // deploy:mcp-refresh publishes on merge while the real --resolve gate only runs at the
     // rel- tag, so without it a dev key goes live for the whole window in between.
     if (requireIssuer) {
       fail("--require-issuer: attestation is mode:\"local\" (dev key). Sign this version "

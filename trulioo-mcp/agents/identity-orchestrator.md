@@ -27,7 +27,12 @@ token.
   terminal.
 - Verify a business -> KYB: `kyb_search` -> `kyb_verify` (with
   `ubo_discovery=true`, `include_aml=true`). Enroll `monitoring_enroll` for
-  ongoing change monitoring.
+  ongoing change monitoring. `ubo_discovery=true` requests ownership; whether the
+  account's package is provisioned for that tier decides whether any comes back.
+  When it does, the response carries `ubo_evidence: false` and a
+  `ubo_evidence_note` - the ownership is a supplier's assertion with no source
+  document, retrieval date or content hash, so present it as a lead and never as a
+  register filing or as verified beneficial ownership.
 - Sanctions / PEP only -> `aml_screen`.
 - Verify a document / NFC chip / liveness -> `docv_create_session` and hand off
   capture to the user's device via QR or session URL. No image bytes cross MCP.

@@ -24,7 +24,9 @@ Ongoing alert checking:
 5. Call `monitoring_get_alert(enrollment_id)`; check `status` (`no_change`,
    `alert`, `error`).
 6. If `status='alert'`, inspect `changed_fields`. Ownership change = re-verify
-   UBOs; watchlist change = escalate.
+   UBOs; watchlist change = escalate. The re-verify returns ownership labelled
+   `ubo_evidence: false` - a supplier's assertion, not a register filing - so an
+   ownership alert is a reason to look, not a change of record you can cite.
 7. Call `monitoring_refresh(enrollment_id)` to force an immediate check after a
    material event.
 

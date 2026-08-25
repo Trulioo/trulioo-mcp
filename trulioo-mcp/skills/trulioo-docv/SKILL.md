@@ -1,6 +1,6 @@
 ---
 name: trulioo-docv
-description: "Guides document verification using the Trulioo MCP server. Covers capture method selection (auto/eid/document/liveness), validation rule configuration (expiry_check, age_minimum, face_match, mrz_check, chip_auth), mobile handoff via QR/deep-link, webhook vs polling result retrieval, and capture tier standards (eIDAS High/NIST IAL3 for EID, IAL2 for document, ISO 30107-3 for liveness). No image bytes or biometric scores flow through MCP. Use for document capture, eID/NFC chip authentication, or biometric face match flows."
+description: "Guides document verification using the Trulioo MCP server. Covers capture method selection (auto/eid/document/liveness), validation rule configuration (expiry_check, age_minimum, face_match, mrz_check, chip_auth), mobile handoff via QR/deep-link, webhook vs polling result retrieval, and capture tier standards (ICAO 9303 chip+MRZ for EID, camera OCR/MRZ for document, ISO 30107-3 PAD for liveness; equivalences to external assurance frameworks are unverified here). No image bytes or biometric scores flow through MCP. Use for document capture, eID/NFC chip authentication, or biometric face match flows."
 ---
 
 # trulioo-docv
@@ -14,7 +14,7 @@ No image bytes, biometric scores, or raw matcher tokens flow through MCP.
 ## When to invoke
 
 - Document capture for identity verification (passport, driver's license, national ID)
-- EID/NFC chip authentication (eIDAS High / NIST IAL3)
+- EID/NFC chip authentication (ICAO 9303 chip + MRZ - the strongest signal here)
 - Biometric liveness + face match
 - Age verification Rung 3 (docv with age_minimum validation rule)
 - Any workflow calling `docv_create_session`, `docv_get_result`, `docv_create_mobile_handoff`, or `docv_cancel_session`
@@ -24,7 +24,7 @@ No image bytes, biometric scores, or raw matcher tokens flow through MCP.
 ```json
 {
   "capture_method": "auto",
-  "document_types": ["passport", "driving_licence"],
+  "document_types": ["PASSPORT", "DRIVERS_LICENSE"],
   "validation_rules": {
     "expiry_check": true,
     "face_match": true,
@@ -42,9 +42,16 @@ No image bytes, biometric scores, or raw matcher tokens flow through MCP.
 | Method | Use case | Standard |
 |---|---|---|
 | `auto` | Let SDK select best method | - |
-| `eid` | NFC chip-based eID | eIDAS High, NIST IAL3 |
-| `document` | Camera-based OCR/MRZ | NIST IAL2 |
+| `eid` | NFC chip-based eID | ICAO 9303, BSI TR-03110 |
+| `document` | Camera-based OCR/MRZ | ICAO 9303 MRZ |
 | `liveness` | Selfie + face match only | ISO 30107-3 PAD L1/L2 |
+
+The `Standard` column names what the capture implements. It deliberately does not map a
+tier to eIDAS or to a NIST IAL: those equivalences are UNVERIFIED here and are not a
+compliance determination. An eIDAS level of assurance belongs to a notified eID scheme,
+and NIST IAL3 requires proofing with physical presence plus biometric collection, which a
+remote unsupervised chip read is not. The tier a relying party needs is its own call; see
+`assurance_mapping_unverified` in the `docv_create_session` response manifest.
 
 ## Validation rules
 
