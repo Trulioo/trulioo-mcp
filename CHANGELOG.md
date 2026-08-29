@@ -1,5 +1,23 @@
 # Changelog - trulioo-mcp
 
+## v0.4.1
+
+    trulioo-mcp v0.4.1
+    
+    Portable Agent Plugin (agent-plugins.org 1.0.0) for Trulioo identity
+    verification - KYC, KYB, AML, document verification, age assurance, business
+    monitoring - over the hosted Trulioo MCP server, with a KYA-signed attestation.
+    
+    KYA attestation:
+      issuer         Trulioo (kya:trulioo:plugin-issuer)
+      kid            trulioo-attestation-1
+      mode           issuer-signed (kid resolves in the issuer JWKS)
+      subject_digest sha256:b61e27f2b2a41a6983c22c36fc6644c3babc5cbf852bf9dcf15712015f4f0614
+      sealed files   16 (manifest + mcp + skills + commands + agent)
+    
+    Verify:  node attest-plugin.mjs --verify --resolve
+    Install: /plugin marketplace add Trulioo/trulioo-mcp  ->  /plugin install trulioo-mcp@trulioo
+
 ## v0.4.0
 
     trulioo-mcp v0.4.0

@@ -1,6 +1,6 @@
 ---
 name: trulioo-docv
-description: "Guides document verification using the Trulioo MCP server. Covers capture method selection (auto/eid/document/liveness), validation rule configuration (expiry_check, age_minimum, face_match, mrz_check, chip_auth), mobile handoff via QR/deep-link, webhook vs polling result retrieval, and capture tier standards (ICAO 9303 chip+MRZ for EID, camera OCR/MRZ for document, ISO 30107-3 PAD for liveness; equivalences to external assurance frameworks are unverified here). No image bytes or biometric scores flow through MCP. Use for document capture, eID/NFC chip authentication, or biometric face match flows."
+description: "Run document capture and result retrieval only when DocV tools are advertised. DocV is incomplete and disabled by default; no image bytes or biometric scores cross MCP."
 ---
 
 # trulioo-docv
@@ -10,6 +10,10 @@ description: "Guides document verification using the Trulioo MCP server. Covers 
 Create and manage document verification sessions. The agent creates a session,
 delivers handoff materials (QR/deep-link) to the user, and polls for results.
 No image bytes, biometric scores, or raw matcher tokens flow through MCP.
+
+DocV is incomplete and disabled by default. Use this skill only when
+`trulioo_capabilities` or `tools/list` advertises `docv_create_session`. If it is
+absent, state that document verification is unavailable in this session and stop.
 
 ## When to invoke
 
@@ -90,7 +94,7 @@ if session abandoned: docv_cancel_session(session_id)
 
 ## Generative UI (A2UI) - experimental
 
-The integration is two-tier by client capability:
+Use the UI path only when both DocV and the render tool are advertised:
 
 - **A2UI-capable client** (server has `TRULIOO_ENABLE_A2UI=true`): prefer
   `docv_render_capture` - A2UI wraps the SDK and embeds it directly in the chat.

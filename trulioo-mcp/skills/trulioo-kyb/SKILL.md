@@ -1,6 +1,6 @@
 ---
 name: trulioo-kyb
-description: "Guides KYB business verification using the Trulioo MCP server. Covers registration number type discovery per country and jurisdiction, the full due-diligence sequence (search -> verify -> report), UBO discovery, AML bundling, and long-running verification handling. Use when building B2B onboarding, vendor due diligence, corporate structure analysis, or regulatory compliance workflows."
+description: "Run KYB search, verification, reporting, and approved post-KYB follow-ups. Uses kyb_run_follow_up for UBO or deep research and checks optional monitoring availability."
 ---
 
 # trulioo-kyb
@@ -64,7 +64,12 @@ compliance determination. The relying party decides what discharges its obligati
 4. kyb_get_report(record_id=<transaction_record_id>)
    -> full structured report: directors, shareholders, UBO persons, AML results
 
-5. (Optional) monitoring_enroll(transaction_record_id)
+5. (Optional) kyb_run_follow_up(transaction_id, mode,
+                                approved_by_caller=true, idempotency_key)
+   -> starts UBO or deep research after explicit caller approval
+   -> never call retired direct-start tools
+
+6. (Optional, only when advertised) monitoring_enroll(transaction_record_id)
    -> ongoing change monitoring
 ```
 
@@ -117,7 +122,8 @@ carry it too, decided from the payload rather than the request, so following a
 
 ## Monitoring enrollment
 
-After a successful KYB verification, enroll for ongoing monitoring:
+After a successful KYB verification, enroll only when `monitoring_enroll` is
+advertised:
 
 ```
 monitoring_enroll(transaction_record_id)

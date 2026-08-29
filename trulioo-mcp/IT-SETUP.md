@@ -42,7 +42,7 @@ version you want, `/plugin marketplace add Trulioo/trulioo-mcp` fails for
 everyone.
 
 1. Confirm the private repo `github.com/Trulioo/trulioo-mcp` exists and contains
-   the `0.4.0` package. The published root must contain:
+   the `0.4.1` package. The published root must contain:
 
    ```
    .claude-plugin/marketplace.json     # Claude Code catalog
@@ -58,16 +58,16 @@ everyone.
    ```
 
 2. Verify the marketplace `source` points at GitHub (not the internal GitLab
-   monorepo) and the version is `0.4.0`:
+   monorepo) and the version is `0.4.1`:
 
    ```
    source: git-subdir
    url:    https://github.com/Trulioo/trulioo-mcp.git
    path:   trulioo-mcp
-   ref:    v0.4.0
+   ref:    v0.4.1
    ```
 
-3. Pin a release tag (`v0.4.0`) for the pilot so installs are reproducible.
+3. Pin a release tag (`v0.4.1`) for the pilot so installs are reproducible.
    Install from the tag, not from `main`, during a controlled rollout.
 
 4. Grant the pilot group **read access** to the private GitHub org/repo. Claude
@@ -203,7 +203,7 @@ The full detail lives in [CHATGPT.md](CHATGPT.md). This is the sequence:
 ### 2.4 Install and authenticate (administrator)
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.4.0
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.4.1
 ```
 
 1. Restart the ChatGPT desktop app.
@@ -234,7 +234,7 @@ Run these before declaring the rollout done.
       `www-authenticate: Bearer resource_metadata=...` header (endpoint up and
       protected). The status alone is not sufficient - the WAF also answers `401`.
 - [ ] The `resource_metadata` URL from that header returns the JSON in step 1.1.
-- [ ] `github.com/Trulioo/trulioo-mcp` is published at `0.4.0` with the layout
+- [ ] `github.com/Trulioo/trulioo-mcp` is published at `0.4.1` with the layout
       above; marketplace `source` is the GitHub repo, not GitLab.
 - [ ] Claude Code: `/plugin install trulioo-mcp@trulioo` succeeds on a machine
       with VPN + GitHub access; first protected call opens Trulioo OAuth and

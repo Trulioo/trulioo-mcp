@@ -1,6 +1,6 @@
 ---
 name: trulioo-aml
-description: "Guides AML watchlist and sanctions screening using the Trulioo MCP server. Covers entity type selection (person vs business), standalone vs bundled screening (include_aml=true on kyc_verify/kyb_verify), interpreting Hit/Potential Hit/Clear watchlist states, and escalation patterns. Use for compliance, transaction monitoring, periodic re-screening, or any workflow requiring sanctions and PEP screening."
+description: "Interpret AML screening safely. Standalone aml_screen is optional and disabled by default; bundled screening depends on the selected account package."
 ---
 
 # trulioo-aml
@@ -9,6 +9,11 @@ description: "Guides AML watchlist and sanctions screening using the Trulioo MCP
 
 Screen persons or businesses against global watchlists, sanctions lists, and PEP
 databases. Handles entity type routing, result interpretation, and escalation guidance.
+
+Standalone AML is incomplete and disabled by default. Use `aml_screen` only when
+`trulioo_capabilities` or `tools/list` advertises it. If it is absent, do not call it.
+An account package may still support bundled screening through `include_aml` on a
+verification; confirm that package support through `config_discover_account`.
 
 ## When to invoke
 
@@ -67,8 +72,8 @@ Do not surface raw watchlist data to end users. Log it for compliance audit only
 ```
 Runs screening in the same call. More efficient; single transaction record.
 
-**Standalone** (for screening-only flows):
-Use `aml_screen` directly. No identity verification required.
+**Standalone** (only when advertised):
+Use `aml_screen` directly. No identity verification is performed.
 
 ## References
 

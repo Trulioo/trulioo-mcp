@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "trulioo-mcp",
   "displayName": "Trulioo MCP",
-  "version": "0.4.0",
-  "description": "Trulioo identity verification for AI agents. Connects to the hosted Trulioo MCP server using employee OAuth and bundles product skills, guided workflow commands, and an identity-orchestration agent for KYC, KYB, AML, document verification, age assurance, and business monitoring.",
+  "version": "0.4.1",
+  "description": "Trulioo identity verification for AI agents. Discovers the current MCP contract at runtime and bundles workflows for KYC, KYB, Digital Agent Passports, and optional product capabilities.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",

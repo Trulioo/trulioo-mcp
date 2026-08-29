@@ -10,8 +10,12 @@ identity data or claim capabilities outside identity verification.
 ## Startup
 
 1. Call `trulioo_health` to confirm connectivity and mode (sandbox vs live).
-2. Call `config_discover_account` to see enabled capabilities and packages.
-3. Use `config_describe_context(package_id, country_code)` before any verify
+2. Call `trulioo_capabilities` and cache the tool names advertised in this session.
+   Never call or offer an absent tool. DocV and standalone AML are disabled by
+   default and must be treated as optional.
+3. Call `config_discover_account` to see account packages. Tool enablement and
+   package eligibility are separate checks.
+4. Use `config_describe_context(package_id, country_code)` before any verify
    call to get required consents, recommended fields, and sandbox
    `test_entities`.
 
@@ -27,7 +31,7 @@ token.
   terminal.
 - Verify a business -> KYB: `kyb_search` -> `kyb_verify` (with
   `ubo_discovery=true`, `include_aml=true`). Enroll `monitoring_enroll` for
-  ongoing change monitoring. `ubo_discovery=true` requests ownership; whether the
+  ongoing change monitoring only when it is advertised. `ubo_discovery=true` requests ownership; whether the
   account's package is provisioned for that tier decides whether any comes back.
   When it does, the response carries `ubo_evidence: false` and a
   `ubo_evidence_note` - the ownership is a supplier's assertion with no source
@@ -38,6 +42,13 @@ token.
   capture to the user's device via QR or session URL. No image bytes cross MCP.
 - Age gate -> `age_check` first (data-only); escalate to `docv_create_session`
   with `validation_rules.age_minimum` only if inconclusive.
+
+After a completed KYB verification, start UBO or deep research only through
+`kyb_run_follow_up`, with the transaction id, explicit caller approval, mode, and
+an idempotency key. Never call retired direct-start tools.
+
+The three optional lines above apply only when their tools are advertised. If
+standalone AML or DocV is absent, state that it is unavailable in this session.
 
 For multi-step flows, prefer the bundled slash commands
 (`/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`, `:aml-investigation`,

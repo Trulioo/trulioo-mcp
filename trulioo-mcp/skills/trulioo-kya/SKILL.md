@@ -1,6 +1,6 @@
 ---
 name: trulioo-kya
-description: "Verify and operate agent identities using the Trulioo MCP server's 19 kya_* tools (Know Your Agent). Covers which five are public (kya_lookup, kya_rails, kya_transparency_sth, kya_inclusion_proof, kya_status_list) and which need the account credential; choosing a verify verb per rail (A2A card, UCP/AP2/ACP/x402, Web Bot Auth); why found=false is a verdict but an unreachable issuer is an error; checking an issuance's anchored claim yourself via the signed tree head plus a Merkle inclusion proof; reading a revocation bit from the signed status list; the mandate lifecycle (issue, get, verify, record_spend, revoke) and its footguns - an omitted max_amount is UNCAPPED not zero, amount is advisory and never changes valid, recording is not enforcement, settlement_id de-duplicates; and the fingerprint model - what the identity commits versus ignores, why a new build is a new identity, and why supersede requires the incumbent key. Use when deciding whether to act on an agent's credential, when granting or withdrawing spend authority, or when publishing or rolling your own agent."
+description: "Resolve Digital Agent Passports, verify agent credentials, and manage scoped mandates. kya_lookup is DAP discovery; verify the artifact type actually presented and treat issuer outages as errors."
 ---
 
 # trulioo-kya
@@ -25,29 +25,29 @@ directions: reading somebody else's agent, and issuing your own.
 none, because a surface that answers `kya_lookup` and cannot verify what it found is worse
 than either whole state.
 
-## Five tools are public; the other fourteen are not
+## Discovery and credentialed operations
 
-The split is not a pricing decision - it follows what each tool reads. A signed artifact
-anyone may check is public; a per-tenant projection needs your account credential.
+`kya_lookup` is the DAP discovery tool. It resolves a public DAP id or fingerprint to
+the issuer's anchored trust record. Other KYA operations may require the connected
+account credential because they verify, issue, mutate, or read tenant-scoped state.
 
 | Public (no credential) | What it is |
 |---|---|
-| `kya_lookup` | is this agent verified, and who is it |
+| `kya_lookup` | resolve a Digital Agent Passport trust record |
 | `kya_rails` | what each protocol rail requires |
 | `kya_transparency_sth` | the issuer's signed tree head |
 | `kya_inclusion_proof` | the Merkle proof for one leaf |
 | `kya_status_list` | the signed W3C status list |
 
-Everything else - including `kya_verify_agent` and `kya_card_fingerprint` - needs the
-account credential. A credentialed call is attributed and metered.
+Use `trulioo_capabilities` as the authority for what this session exposes.
 
 ## Verifying somebody else's agent
 
-Start with the cheapest question that answers yours.
+Choose the tool from the artifact the relying party actually received.
 
 | You have | Ask |
 |---|---|
-| a DAP handle or fingerprint | `kya_lookup` - free, edge-cacheable, no credential |
+| a DAP handle or fingerprint | `kya_lookup` - resolve the anchored DAP record |
 | a full A2A card | `kya_verify_agent` - runs the kernel against live issuer keys and live revocation state |
 | a UCP / AP2 / ACP / x402 attestation | `kya_verify_protocol` - the money-carrying rails |
 | an HTTP request and no card at all | `kya_verify_web_bot_auth` - RFC 9421 signatures, key fetched from the Signature-Agent domain |
@@ -63,11 +63,8 @@ as "this agent is not verified" fails the wrong way.
 issued. `kya_verify_mandate` checks one a counterparty presented. Reading a mandate by an
 id lifted out of an unverified document trusts the document to describe itself.
 
-**Don't hardcode a rail's requirements.** Read `kya_rails` for the expected `typ`, trust
-tier, freshness, key binding and alg. The tier and freshness fields matter most: a
-discovery-tier `offline_ok` credential may legitimately keep verifying briefly after a
-revocation, and treating it as equivalent to a capability-tier `central_fresh` one is the
-most common way a verifier is wrong while looking right.
+**Don't hardcode a rail's requirements.** Read `kya_rails` for the expected `typ`,
+freshness, key binding, and algorithm.
 
 ## Checking the log instead of trusting it
 

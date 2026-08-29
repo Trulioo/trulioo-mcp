@@ -1,7 +1,7 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.4.0",
-  "description": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
+  "version": "0.4.1",
+  "description": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",
@@ -24,7 +24,7 @@
   "interface": {
     "displayName": "Trulioo MCP",
     "shortDescription": "Identity verification through Trulioo MCP",
-    "longDescription": "Use Trulioo MCP for identity and business verification, AML screening, document verification, age assurance, and business monitoring.",
+    "longDescription": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
     "developerName": "Trulioo",
     "category": "Productivity",
     "capabilities": [

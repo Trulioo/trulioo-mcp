@@ -10,15 +10,17 @@ creates a session and hands off capture to the user's device.
 
 Follow these steps in order:
 
-1. Call `docv_create_session` with the chosen `capture_method` and any
+1. Call `trulioo_capabilities`. If `docv_create_session` is absent, state that
+   DocV is unavailable in this session and stop.
+2. Call `docv_create_session` with the chosen `capture_method` and any
    `validation_rules` (expiry_check, age_minimum, face_match, mrz_check,
    chip_auth).
-2. Present `handoff.qr_data` as a QR code or `handoff.session_url` for web flow.
-3. If the shortcode expires before the user scans, call
+3. Present `handoff.qr_data` as a QR code or `handoff.session_url` for web flow.
+4. If the shortcode expires before the user scans, call
    `docv_create_mobile_handoff`.
-4. Poll `docv_get_result` until `is_terminal=true`; follow the `next_action`
+5. Poll `docv_get_result` until `is_terminal=true`; follow the `next_action`
    hint (or use a `delivery.webhook_url` instead of polling).
-5. Report the outcome from the terminal result.
+6. Report the outcome from the terminal result.
 
 Capability tiers: `eid` = NFC chip + MRZ (ICAO 9303, the strongest signal here),
 `document` = camera capture + AI fraud models, `liveness` = certified biometric
