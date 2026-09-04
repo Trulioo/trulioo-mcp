@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "trulioo-mcp",
-  "version": "0.4.1",
-  "description": "Trulioo identity verification for AI agents. Discovers the current MCP contract at runtime and bundles workflows for KYC, KYB, Digital Agent Passports, and optional product capabilities.",
+  "version": "0.5.0",
+  "description": "Trulioo identity verification for AI agents. Discovers the current MCP contract at runtime and bundles workflows for KYC, KYB, and Digital Agent Passports.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",
@@ -16,8 +16,6 @@
     "kyc",
     "kyb",
     "aml",
-    "docv",
-    "age-assurance",
     "verification",
     "compliance",
     "trulioo"
@@ -35,11 +33,7 @@
       "skills": "./skills/",
       "commands": [
         "./commands/kyc-onboarding.md",
-        "./commands/kyb-due-diligence.md",
-        "./commands/aml-investigation.md",
-        "./commands/age-verification.md",
-        "./commands/docv-verification.md",
-        "./commands/monitoring-enrollment.md"
+        "./commands/kyb-due-diligence.md"
       ],
       "agents": [
         "./agents/identity-orchestrator.md"
@@ -75,7 +69,7 @@
         "defaultPrompt": [
           "Verify a person's identity with Trulioo",
           "Run business due diligence with Trulioo",
-          "Screen a person or business for AML risk"
+          "Screen a person or business for sanctions and PEP risk"
         ],
         "screenshots": []
       }

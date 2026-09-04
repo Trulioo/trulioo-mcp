@@ -1,6 +1,6 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
   "author": {
     "name": "Trulioo",
@@ -14,8 +14,6 @@
     "kyc",
     "kyb",
     "aml",
-    "docv",
-    "age-assurance",
     "verification",
     "compliance",
     "trulioo"
@@ -36,7 +34,7 @@
     "defaultPrompt": [
       "Verify a person's identity with Trulioo",
       "Run business due diligence with Trulioo",
-      "Screen a person or business for AML risk"
+      "Screen a person or business for sanctions and PEP risk"
     ],
     "screenshots": []
   }

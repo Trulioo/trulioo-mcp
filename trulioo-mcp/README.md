@@ -73,14 +73,14 @@ sharing sequence.
 
 ## What you get
 
-- **MCP server `trulioo`** - the full Trulioo tool surface: KYC, KYB, AML
-  screening, document verification (DocV), age assurance, and business
-  monitoring.
-- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-aml`, `-docv`, `-age`) -
-  encode field structures per country, result interpretation, and safe defaults.
+- **MCP server `trulioo`** - the Trulioo tool surface advertised to your
+  connection: KYC, KYB (sanctions and PEP screening rides along on either, via
+  `include_aml=true`), and Know Your Agent. Other domains are entitlement-gated
+  or behind a server flag; `tools/list` is the authority on what you have.
+- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-kya`) - encode field
+  structures per country, result interpretation, and safe defaults.
 - **Slash commands** - guided multi-step workflows:
-  `/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`, `:aml-investigation`,
-  `:age-verification`, `:docv-verification`, `:monitoring-enrollment`.
+  `/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`.
 - **Agent `identity-orchestrator`** - picks the right tools and chains them into
   a compliant onboarding decision.
 

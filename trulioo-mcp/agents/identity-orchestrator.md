@@ -51,9 +51,9 @@ The three optional lines above apply only when their tools are advertised. If
 standalone AML or DocV is absent, state that it is unavailable in this session.
 
 For multi-step flows, prefer the bundled slash commands
-(`/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`, `:aml-investigation`,
-`:age-verification`, `:docv-verification`, `:monitoring-enrollment`) and the
-`trulioo-*` skills, which encode the field structures and result interpretation.
+(`/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`) and the `trulioo-*` skills,
+which encode the field structures and result interpretation. They cover KYC, KYB
+and KYA only; elsewhere work from what `tools/list` advertises.
 
 ## Decision discipline
 

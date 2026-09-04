@@ -24,7 +24,7 @@ everywhere the standard is read.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.4.1
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.5.0
 ```
 
 **ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
@@ -56,14 +56,14 @@ for the attestation model.
 
 ## What you get
 
-- **MCP server `trulioo`** - the full Trulioo tool surface: KYC, KYB, AML
-  screening, document verification (DocV), age assurance, and business
-  monitoring.
-- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-aml`, `-docv`, `-age`) -
-  field structures per country, result interpretation, and safe defaults.
+- **MCP server `trulioo`** - the Trulioo tool surface advertised to your
+  connection: KYC, KYB (sanctions and PEP screening rides along on either, via
+  `include_aml=true`), and Know Your Agent. Other domains are entitlement-gated
+  or behind a server flag; `tools/list` is the authority on what you have.
+- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-kya`) - field structures
+  per country, result interpretation, and safe defaults.
 - **Slash commands** - guided workflows: `/trulioo-mcp:kyc-onboarding`,
-  `:kyb-due-diligence`, `:aml-investigation`, `:age-verification`,
-  `:docv-verification`, `:monitoring-enrollment`.
+  `:kyb-due-diligence`.
 - **Agent `identity-orchestrator`** - chains the right tools into a compliant
   onboarding decision.
 
