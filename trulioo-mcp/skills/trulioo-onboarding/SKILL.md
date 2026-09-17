@@ -23,7 +23,7 @@ Always run in this order:
 
 ```
 1. trulioo_health()
-   -> check: auth_status == "ok" and mode in ["sandbox", "live"]
+   -> check: auth_status == "ok" and mode in ["sandbox", "test", "live"]
    -> if auth_status != "ok": stop, check TRULIOO_CLIENT_ID / TRULIOO_CLIENT_SECRET
 
 2. trulioo_capabilities()
@@ -39,31 +39,63 @@ Always run in this order:
 4. config_describe_context(package_id, country_code)
    -> returns exact field names, required consents, data sources, subdivisions
    -> call per country/package combination you will verify against
-   -> in sandbox: also returns test_entities for predictable outcomes
+   -> in sandbox: also returns synthetic personas for predictable outcomes
+
+5. config_list_test_entities(package_id, country_code, surface?)
+   -> the subjects THIS session may actually run, and where they come from
+   -> sandbox: synthetic fixtures served by the simulator
+   -> test: your account's own Trulioo test entities, real upstream, VerificationType Demo
+   -> live: available=false, with the credential change that would list them
 ```
 
 ## Startup checklist
 
 - [ ] `trulioo_health` returns `auth_status: "ok"`
-- [ ] `mode` matches expected environment (`sandbox` for dev, `live` for production)
+- [ ] `mode` matches expected environment (`sandbox` for dev, `test` for account
+      acceptance runs, `live` for production)
 - [ ] `trulioo_capabilities` cached; optional tools used only when listed
 - [ ] `config_discover_account` returns at least one package
 - [ ] `config_describe_context` called for each country you will verify against
 - [ ] Required consent strings noted from `config_describe_context` response
 
-## Sandbox vs live
+## Sandbox vs test vs live
 
-| | Sandbox | Live |
-|---|---|---|
-| `TRULIOO_MODE` | `sandbox` (default) | `live` |
-| Credentials needed | No (built-in demo) | Yes |
-| Real verifications | No (mock adapters) | Yes |
-| Test entities | Available | N/A |
-| Rate limits | None | Active |
+| | Sandbox | Test | Live |
+|---|---|---|---|
+| `TRULIOO_MODE` | `sandbox` (default) | `test` | `live` |
+| Credentials needed | No (built-in demo) | Yes (your own) | Yes (your own) |
+| Upstream reached | Simulator | Real Trulioo | Real Trulioo |
+| `VerificationType` | `Demo` | `Demo` | `Live` |
+| Subjects | Synthetic fixtures | Your account's test entities | Real people/businesses |
+| Rate limits | None | Active | Active |
 
-The authenticated session decides sandbox vs live. Do not infer mode from the
-deployment URL, tool name, pricing language, or a cached instruction from another
-session.
+The authenticated session decides the mode. It is bound to the CREDENTIAL you
+authenticated with: do not infer it from the deployment URL, a `package_id`, a tool
+name, pricing language, or a cached instruction from another session. Call
+`config_list_test_entities` to see which subjects the current session may actually run.
+Never tell a user whether a call was billed: the mode fixes the `VerificationType` this
+server sends, and the invoice is a fact about their Trulioo contract that no tool result
+reports.
+
+A hosted bootstrap may ASK for a less privileged mode than its credential grants:
+`POST /oauth/token` accepts `scope=mode:test` (the OAuth spelling, preferred on a stock
+OAuth library) or `mode=test` (form body or query string), and the response echoes `mode`,
+`data` and the granted `scope`. Asking for `live` on a deployment that is not live is a
+`400`: `invalid_scope` + `scopes_supported` if you asked as a scope, `invalid_request` +
+`modes_supported` if you asked as a parameter. A spelling the server does not know is the
+same `400`, never a silent fallback to a live session; scopes that are not ours are
+ignored; a `mode` and a `scope` that disagree are refused, so send one. No tool argument
+does this - only the bootstrap, and only downward.
+
+Every tool result carries a `test_mode` marker. `mode`, `data` and `verification_type` are
+on all of them; the prose `notice` is sent once per session and then suppressed. An absent
+`notice` is NOT a mode change - branch on `data`.
+
+A test-mode package+country with no seeded subject answers `test_personas: null` plus a
+`seeding_request` block. That is a real answer: report the block's `remedy` to the user and
+offer to hand them `support_request` verbatim. Do not retry, do not try another
+`package_id`, and if a verify is run anyway, do not describe an unmatched invented subject
+as a failed verification.
 
 ## Error states
 

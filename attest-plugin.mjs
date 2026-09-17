@@ -74,17 +74,30 @@ const ISSUER = {
 const ARTIFACT_ATTEST_URL = process.env.KYA_ARTIFACT_ATTEST_URL || null;
 // Where a verifier fetches the issuer's public keys to resolve a production kid.
 const JWKS_URL = process.env.KYA_JWKS_URL
-  || "https://identity.trulioo.com/kya-api/.well-known/jwks.json";
+  || "https://identity.trulioo.com/.well-known/jwks.json";
 const ARTIFACT_TYP = "kya-artifact-attestation+jws";
 
-// Files whose bytes are sealed by the attestation: the canonical manifest, the
-// MCP manifest, and every HAND-AUTHORED instruction the plugin injects into the
-// client - skills, guided command prompts, and the orchestrator agent. These are
-// the real attack surface (a tampered command/agent changes what the client does),
-// so they must be sealed too. Client projection manifests (.claude-plugin/,
-// .codex-plugin/, .mcp.json) are DERIVED from plugin.json/mcp.json and are
-// deliberately excluded - sealing them would double-count and churn the digest.
-function attestedFiles() {
+// Installable client projections. They are derived, but they are also the bytes
+// clients execute or import. A deterministic transform is useful development
+// evidence; an issuer seal over the output bytes is the release guarantee.
+const INSTALLABLE_PROJECTIONS = [
+  ".claude-plugin/plugin.json",
+  ".codex-plugin/plugin.json",
+  ".mcp.json",
+  ".app.json.example",
+];
+// `.app.json` contains a workspace-owned ChatGPT connection id. The publisher
+// cannot pre-sign customer-local binding bytes without either freezing the wrong
+// id or teaching customers to break the publisher seal. Seal the distributable
+// template above; installation assurance will bind the realized `.app.json`
+// separately to the workspace and template digest.
+const LOCAL_BINDING_PROJECTIONS = [".app.json"];
+
+// Files whose bytes are sealed by a NEW attestation: canonical manifests, every
+// hand-authored instruction, and every installable client projection. Existing
+// issuer attestations created before projection sealing remain verifiable, but
+// `--require-projections-sealed` refuses them until the next issuer-backed sign.
+function attestedFiles(includeProjections = true) {
   const files = ["plugin.json", "mcp.json"];
   const rel = (p) => relative(PLUGIN, p).split("\\").join("/"); // POSIX keys cross-platform
   // skills/<name>/SKILL.md
@@ -103,6 +116,15 @@ function attestedFiles() {
       if (!name.endsWith(".md")) continue;
       const md = join(root, name);
       if (statSync(md).isFile()) files.push(rel(md));
+    }
+  }
+  if (includeProjections) {
+    for (const projection of INSTALLABLE_PROJECTIONS) {
+      const path = join(PLUGIN, projection);
+      if (!existsSync(path) || !statSync(path).isFile()) {
+        fail(`installable projection is missing: ${projection} (run sync-plugin.mjs)`);
+      }
+      files.push(projection);
     }
   }
   return files;
@@ -124,9 +146,9 @@ function jcs(value) {
 
 // The subject: a per-file content digest map, then a single digest over its JCS
 // form. Order- and formatting-independent; any byte change flips subject_digest.
-function computeSubject() {
+function computeSubject(paths = attestedFiles()) {
   const files = {};
-  for (const rel of attestedFiles()) {
+  for (const rel of paths) {
     // Restrict sealed paths to printable ASCII so the JCS key ordering is identical
     // in JS (UTF-16 sort) and the Rust issuer (UTF-8 byte order); they only diverge
     // for supplementary-plane (U+10000+) codepoints, which ASCII excludes. Matches
@@ -328,7 +350,7 @@ async function resolveIssuerJwk(kid) {
   return jwk;
 }
 
-async function doVerify(resolve, requireIssuer) {
+async function doVerify(resolve, requireIssuer, requireProjectionsSealed) {
   if (!existsSync(ATTESTATION)) fail(`no attestation at ${relative(HERE, ATTESTATION)} (run --sign)`);
   const att = JSON.parse(readFileSync(ATTESTATION, "utf8"));
   const issuerMode = att.mode === "issuer";
@@ -399,8 +421,25 @@ async function doVerify(resolve, requireIssuer) {
     }
   }
 
-  // INTEGRITY: recompute the subject from the plugin ON DISK and compare (both modes).
-  const { subject_digest, files } = computeSubject();
+  // INTEGRITY: recompute exactly the file set the signed payload names. This
+  // preserves verification of pre-projection-seal attestations while still
+  // checking every signed byte. Separately enforce that every current canonical
+  // authored file remains covered, so compatibility cannot become a silent
+  // escape hatch for a newly added skill, command, or agent.
+  const signedPaths = Object.keys(signedClaims.files || {});
+  const requiredCanonical = attestedFiles(false);
+  const missingCanonical = requiredCanonical.filter((path) => !signedPaths.includes(path));
+  if (missingCanonical.length) {
+    fail(`canonical plugin files are not sealed: ${missingCanonical.join(", ")}`);
+  }
+  const missingProjections = INSTALLABLE_PROJECTIONS.filter(
+    (path) => !signedPaths.includes(path),
+  );
+  if (requireProjectionsSealed && missingProjections.length) {
+    fail(`installable projections are not issuer-sealed: ${missingProjections.join(", ")}; `
+      + "re-sign through the issuer after running sync-plugin.mjs");
+  }
+  const { subject_digest, files } = computeSubject(signedPaths);
   if (subject_digest !== signedClaims.subject_digest) {
     const changed = Object.keys({ ...files, ...signedClaims.files })
       .filter((f) => files[f] !== signedClaims.files[f]);
@@ -421,6 +460,16 @@ async function doVerify(resolve, requireIssuer) {
   console.log(`  trust          ${resolvedVia}`);
   console.log(`  subject_digest ${subject_digest}`);
   console.log(`  sealed files   ${Object.keys(files).length}`);
+  console.log(`  projections    ${missingProjections.length
+    ? `UNSEALED (${missingProjections.join(", ")})`
+    : "issuer-sealed"}`);
+  console.log(`  local binding  ${LOCAL_BINDING_PROJECTIONS.join(", ")} `
+    + "(requires workspace installation evidence)");
+  if (missingProjections.length && !requireProjectionsSealed) {
+    console.log("  WARNING        installable projections are deterministic but not yet "
+      + "covered by this issuer signature; use --require-projections-sealed as the "
+      + "promotion gate after re-signing");
+  }
   // A local-mode attestation verifies perfectly against its OWN embedded key, so a
   // bare --verify is green and says nothing about provenance. sync-plugin.mjs copies
   // this same file to the PUBLIC hosted paths, so a green local-mode verify means
@@ -441,14 +490,18 @@ const args = process.argv.slice(2);
 const mode = args[0];
 const resolveFlag = args.includes("--resolve");
 const requireIssuerFlag = args.includes("--require-issuer");
+const requireProjectionsSealedFlag = args.includes("--require-projections-sealed");
 // Await the entrypoint and funnel ANY throw (a non-JSON issuer response, a
 // malformed body missing jws/kid, a network error) into the clean
 // "ATTESTATION INVALID" path instead of an unhandledRejection stack trace.
 async function main() {
   if (mode === "--sign") await doSign();
-  else if (mode === "--verify" || mode === "--check") await doVerify(resolveFlag, requireIssuerFlag);
+  else if (mode === "--verify" || mode === "--check") {
+    await doVerify(resolveFlag, requireIssuerFlag, requireProjectionsSealedFlag);
+  }
   else {
-    console.error("usage: node attest-plugin.mjs --sign | --verify [--resolve] [--require-issuer]");
+    console.error("usage: node attest-plugin.mjs --sign | --verify [--resolve] "
+      + "[--require-issuer] [--require-projections-sealed]");
     process.exit(2);
   }
 }

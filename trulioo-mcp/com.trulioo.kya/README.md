@@ -12,9 +12,9 @@ it attests *who published this plugin* and *that it has not been altered*.
 
 - **`attestation.json`** - the committed, verifiable attestation. Contains the
   issuer identity, a `subject_digest` sealing the plugin's manifest + skills, the
-  signer's public JWK, and a JWS-sealed Ed25519 signature (`alg: EdDSA`, JWS JSON
-  Serialization with embedded payload). Everything a
-  verifier needs; safe to publish.
+  issuer key id, and a JWS-sealed Ed25519 signature (`alg: EdDSA`, JWS JSON
+  Serialization with embedded payload). The public key is not carried in the
+  document: a verifier must resolve `kid` from `jwks_url`.
 - **`signing-key.local.pem`** - gitignored. The local dev signing key. Production
   signing is the deployed Trulioo KYA issuer (KMS Ed25519, identity.trulioo.com),
   whose `kid` resolves in the issuer's published JWKS.
@@ -26,8 +26,7 @@ From the source repo (the signer/verifier script lives at the plugin root):
 ```
 # from the plugin root (where attest-plugin.mjs lives in the PUBLISHED package;
 # in the monorepo it is one level up - use `node ../../attest-plugin.mjs` from here)
-node attest-plugin.mjs --verify            # integrity
-node attest-plugin.mjs --verify --resolve  # + issuer provenance (kid in the JWKS)
+node attest-plugin.mjs --verify --resolve  # integrity + issuer provenance
 ```
 
 `attest-plugin.mjs` ships at the repo root next to this package, so a clone can
@@ -36,9 +35,8 @@ run the verify commands directly.
 Checks, fail-closed: (1) the Ed25519 signature verifies; (2) the signed payload
 matches the presented claims; (3) the `subject_digest` recomputed from the plugin
 on disk matches what was signed - i.e. the plugin is byte-identical to what was
-attested; and, with `--resolve`, (4) the signing `kid` resolves in the Trulioo
-issuer's published JWKS - i.e. it was signed by the named Trulioo KYA issuer, not
-an arbitrary key.
+attested; and (4) the signing `kid` resolves in the Trulioo issuer's published
+JWKS - i.e. it was signed by the named Trulioo KYA issuer, not an arbitrary key.
 
 ## Wire format
 

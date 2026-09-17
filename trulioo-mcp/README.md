@@ -77,8 +77,10 @@ sharing sequence.
   connection: KYC, KYB (sanctions and PEP screening rides along on either, via
   `include_aml=true`), and Know Your Agent. Other domains are entitlement-gated
   or behind a server flag; `tools/list` is the authority on what you have.
-- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-kya`) - encode field
-  structures per country, result interpretation, and safe defaults.
+- **Skills** (`trulioo-onboarding`, `-kyc`, `-kyb`, `-kya`,
+  `trulioo-agent-assurance`) - encode field structures per country, result
+  interpretation, safe defaults, and the thin Prism MCP workflow for KYA
+  multi-collector software assurance.
 - **Slash commands** - guided multi-step workflows:
   `/trulioo-mcp:kyc-onboarding`, `:kyb-due-diligence`.
 - **Agent `identity-orchestrator`** - picks the right tools and chains them into
@@ -86,6 +88,11 @@ sharing sequence.
 
 Note: **Claude Desktop** consumes the remote MCP server (add-by-URL connector);
 the skills, commands, and agent are Claude Code features and don't apply there.
+
+The assurance skill discovers its live Prism MCP contract at runtime. It contains
+no scanner binary, vendor policy, credential, score translation, or hidden
+threshold. If the required remote or approved local/spark operation is not
+advertised, it reports the route as unavailable.
 
 ## Verifying the attestation
 

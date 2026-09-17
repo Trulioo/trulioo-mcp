@@ -115,8 +115,11 @@ surname (`PersonInfo.FirstSurName`, case-insensitive):
 | `Error` | `error` |
 | anything else (e.g. `Doe`) | `match` |
 
-`config_describe_context` returns one `test_entities` persona per outcome, so you
-can drive the full range of downstream handling, not just the happy path.
+This surname convention is the SANDBOX simulator's contract; it is published API. Your
+own account's Trulioo test entities (`test` mode) are seeded upstream and do not obey it.
+Call `config_list_test_entities(package_id, country_code, surface?)` for the subjects the
+current session may actually run - each persona carries an `outcome`, so a scenario table
+keyed on `outcome` rather than on a name runs unchanged in both modes.
 
 ## Synchronous mode
 

@@ -1,6 +1,6 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
   "author": {
     "name": "Trulioo",
