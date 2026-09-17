@@ -1,10 +1,9 @@
-# Trulioo MCP - portable, KYA-signed Agent Plugin
+# Trulioo - portable, KYA-signed Agent Plugin
 
 Identity verification for AI agents. This package connects Claude Code, ChatGPT,
-Codex, and Claude Desktop to the hosted **Trulioo MCP server** at
-`https://mcp.trulioo.com/mcp` using the existing employee OAuth flow. No OAuth
-token or client secret is stored in the package - every employee authenticates
-to Trulioo as themselves on first use.
+Codex, and Claude Desktop to Trulioo's hosted MCP server at
+`https://mcp.trulioo.com/mcp`. No OAuth token or client secret is stored in the
+package. Each user authenticates to Trulioo on first use.
 
 **One portable bundle (Agent Plugins 1.0.0).** The package follows the
 [agent-plugins.org](https://agent-plugins.org) open standard: a canonical
@@ -30,46 +29,19 @@ node attest-plugin.mjs --verify --resolve  # + provenance: kid resolves in the T
 
 See `com.trulioo.kya/README.md` for the attestation model.
 
-## For the IT administrator
+## Install
 
-Full step-by-step rollout (Claude Code + ChatGPT, with a verification checklist
-and rollback): **[IT-SETUP.md](IT-SETUP.md)**. The essentials, in order:
-
-### Prerequisite: publish the package to the private GitHub repo
-
-Both the Claude and ChatGPT install paths pull the package from the private
-`github.com/Trulioo/trulioo-mcp` repository. That repo must exist and contain
-this package before any install command works - until it does,
-`/plugin marketplace add Trulioo/trulioo-mcp` fails for everyone.
-
-Publish the package to `github.com/Trulioo/trulioo-mcp` (see the file list in
-[CHATGPT.md](CHATGPT.md) under "Before the administrator starts"), then pin a
-release tag for the pilot instead of installing from `main`.
-
-> The live marketplace served at
-> `https://mcp.trulioo.com/plugin/.claude-plugin/marketplace.json` is also
-> regenerated from this package on deploy and points at the same GitHub repo.
-> Publish to GitHub first, or the public marketplace-add path breaks too.
-
-### Roll out Claude Code
-
-Point employees at these two commands (VPN + GitHub org access required):
+### Claude Code
 
 ```
 /plugin marketplace add Trulioo/trulioo-mcp
 /plugin install trulioo-mcp@trulioo
 ```
 
-On the first protected tool call, Claude opens the Trulioo OAuth flow and the
-employee signs in with their own account.
+### ChatGPT and Claude Desktop
 
-### Roll out ChatGPT
-
-ChatGPT uses the same Trulioo MCP endpoint and OAuth flow through one
-administrator-registered MCP connection shared with the workspace. Follow
-[CHATGPT.md](CHATGPT.md) end to end - it covers enabling Developer mode,
-registering the connection, binding `.app.json`, and the pilot -> all-employees
-sharing sequence.
+Add `https://mcp.trulioo.com/mcp` as a remote MCP connector. On the first
+protected tool call, the client opens the Trulioo OAuth flow.
 
 ## What you get
 
@@ -107,9 +79,14 @@ node attest-plugin.mjs --verify --resolve  # provenance: kid resolves in the Tru
 
 ## Maintenance
 
-This package is a **generated mirror** - it is produced from the Trulioo MCP
-server's sources of truth and published by CI; do not hand-edit it here. Skill
+This package is a **generated mirror** - it is produced from Trulioo's MCP
+server sources of truth and published by CI; do not hand-edit it here. Skill
 bodies, the command set, and the client-manifest projections are regenerated and
 verified against the server on every release (`sync-plugin.mjs --check` gates
 drift), and the KYA attestation is re-signed. Report issues to
 [mcp@trulioo.com](mailto:mcp@trulioo.com).
+
+## License
+
+Licensed under the Apache License 2.0. See `LICENSE`. Access to Trulioo services
+is governed separately by the applicable Trulioo agreement and authentication.

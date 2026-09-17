@@ -1,6 +1,6 @@
 ---
 name: trulioo-kyc
-description: "Guides KYC identity verification decisions using the Trulioo MCP server. Covers data_fields structure by country (PascalCase Trulioo field names), synchronous vs async result modes, is_terminal polling with next_action hints, consent requirements, and interpreting match/nomatch/review results. Use when building identity verification flows, user onboarding, or any workflow that needs to verify a person's identity via kyc_verify, kyc_get_status, or kyc_get_record."
+description: "Guides KYC identity verification decisions using Trulioo's hosted MCP server. Covers data_fields structure by country (PascalCase Trulioo field names), synchronous vs async result modes, is_terminal polling with next_action hints, consent requirements, and interpreting match/nomatch/review results. Use when building identity verification flows, user onboarding, or any workflow that needs to verify a person's identity via kyc_verify, kyc_get_status, or kyc_get_record."
 ---
 
 # trulioo-kyc
@@ -173,7 +173,7 @@ When the client supports A2UI (advertised at MCP `initialize`) and the server ha
   and runs `kyc_verify` with `wait_for_completion`. You do not assemble `data_fields`
   yourself in this flow.
 
-The Trulioo MCP demo exposes this behind a Standard | Experimental switch; standard mode is
+The Trulioo demo exposes this behind a Standard | Experimental switch; standard mode is
 the plain chat + raw tool-trace behavior. See `docs/standards-and-next-steps.md`.
 
 ### White-labeling

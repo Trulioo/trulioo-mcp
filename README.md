@@ -1,7 +1,7 @@
-# Trulioo MCP - portable, KYA-signed Agent Plugin
+# Trulioo - portable, KYA-signed Agent Plugin
 
 Identity verification for AI agents. This repository is the public, installable
-distribution of the **Trulioo MCP** plugin - a portable
+distribution of **Trulioo** - a portable
 [Agent Plugins](https://agent-plugins.org) 1.0.0 bundle that connects Claude
 Code, ChatGPT, OpenAI Codex, and Claude Desktop to Trulioo's hosted MCP server
 (KYC, KYB, AML screening, document verification, age assurance, and business
@@ -24,15 +24,14 @@ everywhere the standard is read.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.5.1
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.5.2
 ```
 
 **ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
 URL: `https://mcp.trulioo.com/mcp` (OAuth 2.1). Desktop uses the MCP tools; the
-skills, commands, and agent are Claude Code features. See
-[`trulioo-mcp/CHATGPT.md`](trulioo-mcp/CHATGPT.md) for the ChatGPT admin runbook.
+skills, commands, and agent are Claude Code features.
 
-All clients connect to the hosted Trulioo MCP server at
+All clients connect to Trulioo's hosted MCP server at
 `https://mcp.trulioo.com/mcp`. On the first protected tool call you complete the
 Trulioo OAuth flow and sign in as yourself; no OAuth token or client secret is
 stored in the plugin.
@@ -84,17 +83,18 @@ trulioo-mcp/                       # the installable plugin payload
   .app.json / .app.json.example    # ChatGPT MCP connection binding
   com.trulioo.kya/                 # the KYA attestation (attestation.json + README)
   skills/ commands/ agents/
-  CHATGPT.md                       # ChatGPT administrator runbook
+  LICENSE                          # Apache 2.0
 ```
 
 ## About this repository
 
 This is a **generated, published mirror**. The plugin's skills and commands are
-produced from the Trulioo MCP server's tool definitions and released here by an
+produced from Trulioo's MCP server tool definitions and released here by an
 automated pipeline, and the KYA attestation is re-signed on each release. Do not
 hand-edit the payload. For issues, questions, or credential requests, contact
 <mcp@trulioo.com>.
 
 ## License
 
-See [LICENSE](LICENSE). (c) Trulioo. All rights reserved.
+Licensed under the [Apache License 2.0](LICENSE). Access to Trulioo services is
+governed separately by the applicable Trulioo agreement and authentication.

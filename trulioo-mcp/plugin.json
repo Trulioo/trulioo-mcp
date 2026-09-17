@@ -1,16 +1,16 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "trulioo-mcp",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Trulioo identity verification for AI agents. Discovers the current MCP contract at runtime and bundles workflows for KYC, KYB, and Digital Agent Passports.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",
-    "url": "https://mcp.trulioo.com"
+    "url": "https://mcp.trulioo.com/developer/"
   },
-  "homepage": "https://mcp.trulioo.com",
+  "homepage": "https://mcp.trulioo.com/developer/",
   "repository": "https://github.com/Trulioo/trulioo-mcp",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "keywords": [
     "identity",
     "kyc",
@@ -28,7 +28,7 @@
       "verify": "node attest-plugin.mjs --verify --resolve"
     },
     "com.anthropic.claude-code": {
-      "displayName": "Trulioo MCP",
+      "displayName": "Trulioo",
       "mcpServers": "./.mcp.json",
       "skills": "./skills/",
       "commands": [
@@ -40,7 +40,7 @@
       ]
     },
     "com.anthropic.claude-desktop": {
-      "displayName": "Trulioo MCP",
+      "displayName": "Trulioo",
       "mcpServers": "./.mcp.json",
       "consumes": [
         "mcpServers"
@@ -55,9 +55,9 @@
     "com.openai.chatgpt": {
       "apps": "./.app.json",
       "interface": {
-        "displayName": "Trulioo MCP",
-        "shortDescription": "Identity verification through Trulioo MCP",
-        "longDescription": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
+        "displayName": "Trulioo",
+        "shortDescription": "Identity verification through Trulioo",
+        "longDescription": "Use Trulioo for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
         "developerName": "Trulioo",
         "category": "Productivity",
         "capabilities": [
@@ -65,7 +65,7 @@
           "Read",
           "Write"
         ],
-        "websiteURL": "https://mcp.trulioo.com",
+        "websiteURL": "https://mcp.trulioo.com/developer/",
         "defaultPrompt": [
           "Verify a person's identity with Trulioo",
           "Run business due diligence with Trulioo",

@@ -1,14 +1,14 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.5.1",
-  "description": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
+  "version": "0.5.2",
+  "description": "Use Trulioo for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",
-    "url": "https://mcp.trulioo.com"
+    "url": "https://mcp.trulioo.com/developer/"
   },
-  "homepage": "https://mcp.trulioo.com",
-  "license": "UNLICENSED",
+  "homepage": "https://mcp.trulioo.com/developer/",
+  "license": "Apache-2.0",
   "keywords": [
     "identity",
     "kyc",
@@ -20,9 +20,9 @@
   ],
   "apps": "./.app.json",
   "interface": {
-    "displayName": "Trulioo MCP",
-    "shortDescription": "Identity verification through Trulioo MCP",
-    "longDescription": "Use Trulioo MCP for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
+    "displayName": "Trulioo",
+    "shortDescription": "Identity verification through Trulioo",
+    "longDescription": "Use Trulioo for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
     "developerName": "Trulioo",
     "category": "Productivity",
     "capabilities": [
@@ -30,7 +30,7 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://mcp.trulioo.com",
+    "websiteURL": "https://mcp.trulioo.com/developer/",
     "defaultPrompt": [
       "Verify a person's identity with Trulioo",
       "Run business due diligence with Trulioo",

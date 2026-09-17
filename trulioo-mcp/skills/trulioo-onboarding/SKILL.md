@@ -1,13 +1,13 @@
 ---
 name: trulioo-onboarding
-description: "Initialize a Trulioo MCP session from its advertised contract: health, capabilities, account packages, and country context. Use for startup, connectivity, and sandbox/live mode checks."
+description: "Initialize a Trulioo session from its advertised contract: health, capabilities, account packages, and country context. Use for startup, connectivity, and sandbox/live mode checks."
 ---
 
 # trulioo-onboarding
 
 ## Purpose
 
-Initialize and verify the Trulioo MCP server connection before any verification work.
+Initialize and verify the Trulioo connection before any verification work.
 This skill ensures the agent uses the contract advertised by the current session instead
 of assuming every product family is enabled.
 
