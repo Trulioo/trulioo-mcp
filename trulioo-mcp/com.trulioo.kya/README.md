@@ -1,7 +1,7 @@
 # `com.trulioo.kya` - KYA plugin attestation namespace
 
 This is the reference implementation of the **KYA-attested Agent Plugin** trust
-layer (ADR-P-029) - a `com.trulioo.kya` reverse-DNS extension namespace under the
+layer - a `com.trulioo.kya` reverse-DNS extension namespace under the
 [Agent Plugins](https://agent-plugins.org) specification.
 
 The Agent Plugins spec standardizes the manifest ("the box") but deliberately
@@ -21,16 +21,21 @@ it attests *who published this plugin* and *that it has not been altered*.
 
 ## Verify
 
-From the source repo (the signer/verifier script lives at the plugin root):
+`attest-plugin.mjs` is the verifier. It ships one level ABOVE this package, at the
+repository root, so a clone can run it with no install step:
 
-```
-# from the plugin root (where attest-plugin.mjs lives in the PUBLISHED package;
-# in the monorepo it is one level up - use `node ../../attest-plugin.mjs` from here)
-node attest-plugin.mjs --verify --resolve  # integrity + issuer provenance
+```sh
+# from the repository root
+node attest-plugin.mjs --verify --resolve
+
+# from this directory
+node ../../attest-plugin.mjs --verify --resolve
 ```
 
-`attest-plugin.mjs` ships at the repo root next to this package, so a clone can
-run the verify commands directly.
+`--resolve` is not optional for a released plugin. It is what fetches the issuer's
+published JWKS and checks the signing key against it; without it the run stops and
+tells you to add it, because an attestation verified against a key carried in its
+own file proves nothing about who published it.
 
 Checks, fail-closed: (1) the Ed25519 signature verifies; (2) the signed payload
 matches the presented claims; (3) the `subject_digest` recomputed from the plugin

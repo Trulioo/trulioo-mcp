@@ -20,10 +20,10 @@ somebody else's agent, and issuing your own.
 - You operate an agent and need to publish, roll, retire, or revoke its identity
 - You want to check an issuance yourself rather than believe its `anchored: true`
 
-ON by default. `TRULIOO_ENABLE_KYA=false` removes the whole family, all or none, because a
-surface that answers `kya_lookup` and cannot verify what it found is worse than either whole
-state. Ask `trulioo_capabilities` how many there are; a count written here is one that
-nothing measures.
+ON by default, and all-or-none: a deployment that turns the family off removes every tool in
+it, because a surface that answers `kya_lookup` and then cannot verify what it found is worse
+than either whole state. Ask `trulioo_capabilities` how many there are; a count written here
+is one that nothing measures.
 
 Measuring what a host publishes for agents - starting from a hostname rather than from a
 presented credential - is `trulioo-agent-readiness`, a separate skill.

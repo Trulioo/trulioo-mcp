@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Trulioo/trulioo-mcp/blob/main/SECURITY.md
+    about: Do not open a public issue. Report privately to security@trulioo.com.
+  - name: Credentials, packages, or entitlements
+    url: mailto:mcp@trulioo.com
+    about: Account matters are not handled through issues.
+  - name: What the plugin ships, and what it does not
+    url: https://github.com/Trulioo/trulioo-mcp/blob/main/AGENTS.md
+    about: Read this before reporting a missing tool - the session's own tools/list is the authority.

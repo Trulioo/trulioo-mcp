@@ -24,7 +24,9 @@ Always run in this order:
 ```
 1. trulioo_health()
    -> check: auth_status == "ok" and mode in ["sandbox", "test", "live"]
-   -> if auth_status != "ok": stop, check TRULIOO_CLIENT_ID / TRULIOO_CLIENT_SECRET
+   -> if auth_status != "ok": stop. On the hosted server, re-run the OAuth
+      authorization (the token is rejected or expired); self-hosted, check the
+      deployment's Trulioo client id + secret. Do not continue on "error".
 
 2. trulioo_capabilities()
    -> cache the enabled tool names for this session
@@ -60,19 +62,19 @@ Always run in this order:
 
 ## Sandbox vs test vs live
 
-| | Sandbox | Test | Live |
+| `mode` | `sandbox` | `test` | `live` |
 |---|---|---|---|
-| `TRULIOO_MODE` | `sandbox` (default) | `test` | `live` |
 | Credentials needed | No (built-in demo) | Yes (your own) | Yes (your own) |
 | Upstream reached | Simulator | Real Trulioo | Real Trulioo |
 | `VerificationType` | `Demo` | `Demo` | `Live` |
 | Subjects | Synthetic fixtures | Your account's test entities | Real people/businesses |
 | Rate limits | None | Active | Active |
 
-The authenticated session decides the mode. It is bound to the CREDENTIAL you
-authenticated with: do not infer it from the deployment URL, a `package_id`, a tool
-name, pricing language, or a cached instruction from another session. Call
-`config_list_test_entities` to see which subjects the current session may actually run.
+The authenticated session decides the mode, and `trulioo_health` is how you read
+it. It is bound to the CREDENTIAL you authenticated with: do not infer it from the
+deployment URL, a `package_id`, a tool name, pricing language, or a cached
+instruction from another session. Call `config_list_test_entities` to see which
+subjects the current session may actually run.
 Never tell a user whether a call was billed: the mode fixes the `VerificationType` this
 server sends, and the invoice is a fact about their Trulioo contract that no tool result
 reports.
@@ -102,14 +104,14 @@ as a failed verification.
 | `auth_status` value | Meaning | Fix |
 |---|---|---|
 | `"ok"` | Ready | Proceed |
-| `"error"` | Token acquisition failed, INCLUDING no credentials configured | Check that `TRULIOO_CLIENT_ID` / `TRULIOO_CLIENT_SECRET` are set, then that they are accepted |
+| `"error"` | Token acquisition failed, INCLUDING no credentials configured | Re-run the OAuth authorization against the hosted server; self-hosted, check the deployment's credentials are set, then that they are accepted |
 
 `trulioo_health` reports exactly these two values. There is no `"unconfigured"` status:
 missing credentials and rejected credentials both read as `"error"`, so a caller cannot
-tell them apart from `auth_status` alone - check `sandbox_active` and whether the
-credentials are present before concluding they are wrong (F193).
+tell them apart from `auth_status` alone - check `sandbox_active` and whether a
+credential was presented at all before concluding it is wrong.
 
 ## References
 
-- `kyc_onboarding_workflow` prompt
+- `kyb_due_diligence_workflow` prompt
 - `trulioo://config/{pkg}/{cc}` resource

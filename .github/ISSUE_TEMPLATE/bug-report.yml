@@ -1,0 +1,75 @@
+name: Bug or wrong instruction
+description: A tool, skill, command, or document made an agent do the wrong thing.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository is generated output, so the fix lands in the source behind it.
+        The three things below are what make that possible. Please do not open a pull
+        request against `trulioo-mcp/` - see
+        [CONTRIBUTING.md](https://github.com/Trulioo/trulioo-mcp/blob/main/CONTRIBUTING.md).
+
+        **Do not paste credentials, tokens, or real end-user verification data.**
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What the agent did, and what you expected instead.
+      placeholder: |
+        Asked it to map a company's beneficial ownership. It reported "no beneficial
+        owners found" and moved on.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: File and sentence, if you can name one
+      description: >
+        The document that produced the behaviour, and the line. A wrong sentence in a
+        skill is a wrong answer at scale, because a model follows it without anyone
+        reading it first - so this is the most useful field in the form.
+      placeholder: trulioo-mcp/skills/trulioo-kyb/SKILL.md - "Maps beneficial ownership chains"
+  - type: textarea
+    id: correct
+    attributes:
+      label: What the correct behaviour would have been
+      description: In your words. This is the part we cannot reconstruct from logs.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      description: >
+        From `.trulioo-distribution.json` at the repository root, or the tag you
+        installed.
+      placeholder: v0.6.0
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: Claude Code 2.x / Claude Desktop / ChatGPT / Codex / other
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Session mode
+      description: >
+        From `trulioo_health`, or the `test_mode` block on any tool result. The mode is
+        bound to the credential the session authenticated with, not to the endpoint URL,
+        so please read it rather than inferring it.
+      options:
+        - sandbox
+        - test
+        - live
+        - did not check
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: Verifier output, if the attestation is involved
+      description: Output of `node attest-plugin.mjs --verify --resolve`.
+      render: shell

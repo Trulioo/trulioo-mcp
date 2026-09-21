@@ -1,7 +1,7 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.5.2",
-  "description": "Use Trulioo for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
+  "version": "0.6.0",
+  "description": "Use Trulioo to verify businesses and their beneficial ownership (KYB), and to resolve, verify, and issue agent identities and scoped spend mandates (KYA). Other capabilities are used only when the connected session advertises them.",
   "author": {
     "name": "Trulioo",
     "email": "mcp@trulioo.com",
@@ -10,10 +10,12 @@
   "homepage": "https://mcp.trulioo.com/developer/",
   "license": "Apache-2.0",
   "keywords": [
-    "identity",
-    "kyc",
     "kyb",
-    "aml",
+    "kya",
+    "business-verification",
+    "beneficial-ownership",
+    "agent-identity",
+    "identity",
     "verification",
     "compliance",
     "trulioo"
@@ -21,8 +23,8 @@
   "apps": "./.app.json",
   "interface": {
     "displayName": "Trulioo",
-    "shortDescription": "Identity verification through Trulioo",
-    "longDescription": "Use Trulioo for identity and business verification, Digital Agent Passports, and optional capabilities advertised by the connected session.",
+    "shortDescription": "Business and agent verification through Trulioo",
+    "longDescription": "Use Trulioo to verify businesses and their beneficial ownership (KYB), and to resolve, verify, and issue agent identities and scoped spend mandates (KYA). Other capabilities are used only when the connected session advertises them.",
     "developerName": "Trulioo",
     "category": "Productivity",
     "capabilities": [
@@ -32,9 +34,9 @@
     ],
     "websiteURL": "https://mcp.trulioo.com/developer/",
     "defaultPrompt": [
-      "Verify a person's identity with Trulioo",
-      "Run business due diligence with Trulioo",
-      "Screen a person or business for sanctions and PEP risk"
+      "Run business due diligence on a company with Trulioo",
+      "Map a company's beneficial ownership",
+      "Check whether this agent's credential and spend mandate are real"
     ],
     "screenshots": []
   }

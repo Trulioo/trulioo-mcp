@@ -19,6 +19,11 @@ UBO mapping, AML screening, and ongoing monitoring enrollment.
 - Regulatory compliance work touching beneficial ownership (FATF, 5AMLD, FinCEN)
 - Any workflow calling `kyb_search`, `kyb_verify`, `kyb_get_report`, or monitoring tools
 
+The tool names below are not a promise your session holds them. `trulioo_capabilities`
+(or `tools/list`) is the authority: the KYB core is normally advertised; UBO, bundled
+AML and monitoring are optional and may be off or absent. Check it before offering a
+step, and say a capability is unavailable rather than improvise around it.
+
 Naming a regime is not a mapping to it: no output of this server establishes compliance
 with FATF, 5AMLD or FinCEN, and any such equivalence is UNVERIFIED here and is not a
 compliance determination. The relying party decides what discharges its obligation.

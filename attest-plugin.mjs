@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // KYA-attested Agent Plugin - reference implementation of the `com.trulioo.kya`
-// extension namespace (ADR-P-029). Signs the trulioo-mcp plugin with a JWS-sealed
-// Ed25519 attestation so any consumer can verify:
+// extension namespace. Signs the trulioo-mcp plugin with a JWS-sealed Ed25519
+// attestation so any consumer can verify:
 //
 //   1. PROVENANCE - the plugin was published by a named Trulioo KYA issuer.
 //   2. INTEGRITY  - the plugin's manifest + skills have not been altered since
@@ -14,7 +14,7 @@
 // plugin.json `extensions["com.trulioo.kya"]`. Clients that don't implement it
 // ignore it; clients that do can gate on it.
 //
-// Wire format mirrors KYA (core/prism/mcp-server/src/tools/kya.rs):
+// Wire format mirrors the KYA attestations the Trulioo issuer mints for agents:
 //   - subject digest: sha256 over an RFC 8785 (JCS) canonical listing of every
 //     attested file's sha256 - a name-independent, order-independent content seal.
 //   - signature: JWS JSON Serialization (RFC 7515 §7.2), alg EdDSA (Ed25519), with
@@ -26,15 +26,21 @@
 // KMS action) and is never committed.
 //
 // Usage:
-//   node attest-plugin.mjs --sign     # (re)sign; needs the private key (see below)
-//   node attest-plugin.mjs --verify   # verify the committed attestation (CI gate)
+//   node attest-plugin.mjs --verify --resolve   # verify provenance + integrity
+//   node attest-plugin.mjs --verify             # integrity only, no network
+//   node attest-plugin.mjs --sign               # maintainers: (re)sign a version
+//
+// `--resolve` fetches the issuer's published JWKS and checks the signing key id
+// against it. A released plugin is issuer-signed, so `--resolve` is the check that
+// answers "did Trulioo publish this?"; a bare `--verify` on an issuer-signed
+// attestation stops early and tells you to add it.
 //
 // Private key resolution for --sign, in order:
-//   1. $TRULIOO_KYA_PLUGIN_KEY - a PEM PKCS#8 Ed25519 private key (CI/KMS export).
+//   1. $TRULIOO_KYA_PLUGIN_KEY - a PEM PKCS#8 Ed25519 private key.
 //   2. trulioo-mcp/com.trulioo.kya/signing-key.local.pem - a gitignored local key;
 //      generated on first --sign if absent (dev convenience).
-// The PRODUCTION signer is the deployed KYA issuer (Halo, KMS Ed25519,
-// identity.trulioo.com); this script is the portable reference + local signer.
+// The PRODUCTION signer is Trulioo's KYA issuer at identity.trulioo.com, holding
+// its Ed25519 key in a KMS; this script is the portable reference + local signer.
 import { createHash, generateKeyPairSync, sign as edSign, verify as edVerify,
          createPublicKey, createPrivateKey } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
@@ -59,18 +65,16 @@ const ISSUER = {
   issuer_uri: "https://identity.trulioo.com",
 };
 
-// Production signing target: the deployed KYA issuer's artifact-attestation endpoint
-// (Halo `POST /kya/artifact/attest`, ADR-P-029). When set, --sign mints the
-// attestation THROUGH the issuer as the Trulioo account (dogfood) instead of the
-// local dev key, so the resulting `kid` resolves in the issuer's published JWKS.
-//   KYA_ARTIFACT_ATTEST_URL - full endpoint, e.g. https://identity.trulioo.com/kya-api/kya/artifact/attest
-//   KYA_ISSUER_DEV_ID / KYA_ISSUER_DEV_SECRET - the Trulioo account's LIVE portal
-//     developer credential (a `tsk_sk_live_` secret key). Presented as the
-//     codename-neutral `x-developer-id`/`-secret` headers that resolve_caller
-//     accepts on the core issuance router (tenant = account_id, KyaPortal domain).
-//   KYA_ISSUER_TENANT_HEADER - optional x-trulioo-tenant for a mock-auth (dawn/dusk) issuer
-// The issuer's own auth/tenant gate (live credential + verified domain) is the
-// authority; this script just presents the credential.
+// Production signing target: the KYA issuer's artifact-attestation endpoint. When
+// set, --sign mints the attestation THROUGH the issuer as the Trulioo account
+// (dogfood) instead of with the local dev key, so the resulting `kid` resolves in
+// the issuer's published JWKS. Maintainers only - a consumer never needs these.
+//   KYA_ARTIFACT_ATTEST_URL   - the artifact-attestation endpoint
+//   KYA_ISSUER_DEV_ID         - the signing account's developer credential id
+//   KYA_ISSUER_DEV_SECRET     - its secret, presented as x-developer-secret
+//   KYA_ISSUER_TENANT_HEADER  - optional tenant override for a non-production issuer
+// The issuer's own auth and tenant gate is the authority; this script only presents
+// the credential.
 const ARTIFACT_ATTEST_URL = process.env.KYA_ARTIFACT_ATTEST_URL || null;
 // Where a verifier fetches the issuer's public keys to resolve a production kid.
 const JWKS_URL = process.env.KYA_JWKS_URL
@@ -150,9 +154,9 @@ function computeSubject(paths = attestedFiles()) {
   const files = {};
   for (const rel of paths) {
     // Restrict sealed paths to printable ASCII so the JCS key ordering is identical
-    // in JS (UTF-16 sort) and the Rust issuer (UTF-8 byte order); they only diverge
-    // for supplementary-plane (U+10000+) codepoints, which ASCII excludes. Matches
-    // the server-side guard in halo::artifact::issue.
+    // in JS (UTF-16 sort) and in the issuer's Rust implementation (UTF-8 byte
+    // order); they only diverge for supplementary-plane (U+10000+) codepoints,
+    // which ASCII excludes. The issuer enforces the same restriction.
     // eslint-disable-next-line no-control-regex
     if (!/^[\x20-\x7E]+$/.test(rel)) {
       fail(`sealed path '${rel}' must be printable ASCII (JCS cross-language determinism)`);
@@ -208,25 +212,30 @@ async function signViaIssuer(subject, subject_digest, files, manifest) {
   const tenantHdr = process.env.KYA_ISSUER_TENANT_HEADER;
   if (!devId && !tenantHdr) {
     fail("production signing needs KYA_ISSUER_DEV_ID + KYA_ISSUER_DEV_SECRET (the "
-      + "account's live tsk_sk_ portal credential) or KYA_ISSUER_TENANT_HEADER (mock-auth issuer)");
+      + "signing account's developer credential) or KYA_ISSUER_TENANT_HEADER");
   }
   const headers = { "content-type": "application/json" };
-  // Codename-neutral developer-credential headers (accepted on the core issuance
-  // router alongside the legacy x-halo-developer-*). tenant resolves = account_id.
+  // Developer-credential headers; the issuer resolves the tenant from them.
   if (devId) {
     headers["x-developer-id"] = devId;
     headers["x-developer-secret"] = devSecret || "";
   }
   if (tenantHdr) headers["x-trulioo-tenant"] = tenantHdr;
-  // EDGE credential, not app auth. kya.trulioo.com's WAF blocks any caller outside
-  // the corp-VPN allowlist unless the request matches a carve-out, and the carve-out
-  // for /kya-api/kya/artifact/attest is `x-prism-internal-key == <key> AND uri prefix`
-  // (platform/infra/kya-site/waf.tf). A CI runner's shared NAT is deliberately not
-  // allowlisted, so without this the POST dies at the edge with a bodyless 401 and
-  // never reaches the issuer. Optional: unset for on-VPN/local runs.
-  if (process.env.KYA_EDGE_INTERNAL_KEY) {
-    headers["x-prism-internal-key"] = process.env.KYA_EDGE_INTERNAL_KEY;
+  // Optional gateway credential, separate from the app auth above. Set both or
+  // neither: the header name is deployment-specific, and a value with no name
+  // would otherwise be dropped without a word.
+  const gatewayKey = process.env.KYA_EDGE_INTERNAL_KEY;
+  const gatewayHeader = process.env.KYA_EDGE_INTERNAL_HEADER;
+  if (gatewayKey && !gatewayHeader) {
+    fail("KYA_EDGE_INTERNAL_KEY is set but KYA_EDGE_INTERNAL_HEADER is not.");
   }
+  // The reverse half. Without it, a deployment that set the header NAME and lost the
+  // value sends no gateway credential at all and gets a bodyless 401 from the edge,
+  // which reads as a bad app credential and sends the operator to the wrong place.
+  if (gatewayHeader && !gatewayKey) {
+    fail("KYA_EDGE_INTERNAL_HEADER is set but KYA_EDGE_INTERNAL_KEY is not.");
+  }
+  if (gatewayKey && gatewayHeader) headers[gatewayHeader] = gatewayKey;
 
   const res = await fetch(ARTIFACT_ATTEST_URL, {
     method: "POST",
@@ -407,17 +416,15 @@ async function doVerify(resolve, requireIssuer, requireProjectionsSealed) {
     if (jcs(signedClaims) !== jcs(att.claims)) fail("signed payload != presented claims");
     resolvedVia = "embedded key (local dev - NOT issuer-backed)";
     if (resolve) fail("--resolve requires an issuer-signed attestation; this is a local dev key");
-    // OFFLINE mode gate, for the MR-time job that has no route to the issuer JWKS.
-    // This asserts one JSON field and proves nothing cryptographically - a forged
+    // OFFLINE mode gate, for a pre-merge job with no route to the issuer JWKS. This
+    // asserts one JSON field and proves nothing cryptographically - a forged
     // mode:"issuer" document passes it. That is fine: it is not a provenance check,
-    // it is a "do not MERGE a dev-key attestation" check. It exists because
-    // deploy:mcp-refresh publishes on merge while the real --resolve gate only runs at the
-    // rel- tag, so without it a dev key goes live for the whole window in between.
+    // it is a "do not MERGE a dev-key attestation" check, because publication happens
+    // on merge while the real --resolve gate only runs at the release tag.
     if (requireIssuer) {
       fail("--require-issuer: attestation is mode:\"local\" (dev key). Sign this version "
-        + "through the issuer before merging - see plugin/DISTRIBUTION.md \"Signing a "
-        + "version\". Merging this would publish a dev-key attestation to "
-        + "lumina.trulioo.com until the next rel- tag.");
+        + "through the issuer before merging; merging it would publish a dev-key "
+        + "attestation until the next release tag.");
     }
   }
 
@@ -471,18 +478,15 @@ async function doVerify(resolve, requireIssuer, requireProjectionsSealed) {
       + "promotion gate after re-signing");
   }
   // A local-mode attestation verifies perfectly against its OWN embedded key, so a
-  // bare --verify is green and says nothing about provenance. sync-plugin.mjs copies
-  // this same file to the PUBLIC hosted paths, so a green local-mode verify means
-  // lumina.trulioo.com is serving a dev-key attestation to anyone who fetches it.
-  // Say so here rather than leaving it to be inferred from the `trust` line.
+  // bare --verify is green and says nothing about provenance. The same attestation is
+  // copied to the hosted public paths, so a green local-mode verify means a dev-key
+  // attestation is being served to anyone who fetches it. Say so here rather than
+  // leaving it to be inferred from the `trust` line.
   if (!issuerMode) {
     console.log("");
     console.log("WARNING: dev-key attestation - NOT issuer provenance. If this is committed,");
-    console.log("  the hosted copies (lumina.trulioo.com/plugin/attestation.json and");
-    console.log("  /.well-known/agent-plugin-attestation.json) serve a dev key too, and the");
-    console.log("  release mirror will REFUSE to publish it (publish-plugin-mirror.sh).");
-    console.log("  Sign this version through the issuer: see plugin/DISTRIBUTION.md");
-    console.log("  \"Signing a version\", then commit the result.");
+    console.log("  the hosted copies serve a dev key too, and the release publisher will");
+    console.log("  REFUSE to publish it. Sign this version through the issuer, then commit.");
   }
 }
 

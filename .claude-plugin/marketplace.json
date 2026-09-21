@@ -6,8 +6,8 @@
     "email": "mcp@trulioo.com",
     "url": "https://mcp.trulioo.com/developer/"
   },
-  "description": "Trulioo identity verification for AI agents - hosted MCP tools, product skills, and guided verification workflows.",
-  "version": "0.5.2",
+  "description": "Trulioo business and agent verification for AI agents - hosted MCP tools, product skills, and guided due-diligence workflows.",
+  "version": "0.6.0",
   "plugins": [
     {
       "name": "trulioo-mcp",
@@ -15,16 +15,18 @@
         "source": "git-subdir",
         "url": "https://github.com/Trulioo/trulioo-mcp.git",
         "path": "trulioo-mcp",
-        "ref": "v0.5.2"
+        "ref": "v0.6.0"
       },
-      "version": "0.5.2",
-      "description": "Connect any Claude Code session to Trulioo identity verification (KYC, KYB, AML, document verification, age assurance, business monitoring) via Trulioo's hosted MCP server. Bundles product skills, guided workflow commands, and an identity-orchestration agent.",
+      "version": "0.6.0",
+      "description": "Verify businesses and their beneficial ownership (KYB), and resolve, verify, and issue agent identities and scoped spend mandates (KYA), over Trulioo's hosted MCP server. Bundles the product skills, a guided due-diligence command, and a verification-orchestration agent.",
       "category": "verification",
       "keywords": [
-        "identity",
-        "kyc",
         "kyb",
-        "aml",
+        "kya",
+        "business-verification",
+        "beneficial-ownership",
+        "agent-identity",
+        "identity",
         "verification",
         "compliance",
         "trulioo",

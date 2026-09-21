@@ -25,6 +25,11 @@ A host can be entirely ready and hold no credential, or hold a valid DAP and pub
 
 ## The two calls
 
+Confirm the session has them first. `trulioo_capabilities` (or `tools/list`) is the
+authority on what this deployment advertises - readiness needs outbound network access, so
+it is one of the surfaces a deployment can be configured without. Two names in a document
+are not a promise that your session holds them.
+
 `kya_assess_readiness` MEASURES. It takes `kind` (`domain` or `origin`) and `value`, and
 nothing else - every other knob would be a way for the subject or the payer to select a
 flattering answer. It performs live outbound fetches, so it is remote-only: an in-process

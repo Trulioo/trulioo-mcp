@@ -1,19 +1,19 @@
 ---
 name: trulioo-agent-assurance
-description: "Request and interpret KYA multi-collector software assurance through Prism MCP. Use for remote service assessments, approved local or spark evidence submission, status polling, and review of signals, coverage, provenance, and disagreement."
+description: "Request and interpret KYA multi-collector software assurance through the Trulioo MCP server. Use for remote service assessments, approved local or spark evidence submission, status polling, and review of signals, coverage, provenance, and disagreement."
 ---
 
 # trulioo-agent-assurance
 
 ## Purpose
 
-Orchestrate KYA multi-collector assurance at the point of action through Prism MCP.
+Orchestrate KYA multi-collector assurance at the point of action through the Trulioo MCP server.
 This is a thin workflow projection. It must never execute scanners, install a runner,
 normalize evidence, decide policy, or reproduce collector logic.
 
 ## Discover the live contract
 
-Start with `trulioo_capabilities`. Treat the connected Prism MCP session as the authority
+Start with `trulioo_capabilities`. Treat the connected Trulioo MCP session as the authority
 on which assurance operations exist.
 
 - If progressive discovery operations are advertised, use `trulioo_find_tools` to search
@@ -25,7 +25,7 @@ on which assurance operations exist.
 
 If the required operation is not advertised, report `unavailable`, name the missing
 semantic operation, and stop that route. Do not substitute an identity-verification tool,
-invoke Halo directly, or attempt scanning outside Prism MCP.
+call the KYA issuer service directly, or attempt scanning outside the Trulioo MCP server.
 
 ## Select the execution route
 
@@ -48,7 +48,7 @@ Use a local or spark route only when both conditions hold:
 
 - an approved, pinned runner or CI workload has already produced evidence and its
   provenance receipt; and
-- Prism MCP advertises an operation that accepts that evidence for the exact subject.
+- The Trulioo MCP server advertises an operation that accepts that evidence for the exact subject.
 
 Select `local`, `spark`, or another execution mode only through values allowed by the
 advertised schema. A local process without an enrolled workload identity may be accepted
@@ -123,7 +123,7 @@ returns it for the requested object.
 
 ## Safety boundary
 
-- Call Prism MCP only. Do not call collector vendors or Halo endpoints directly.
+- Call the Trulioo MCP server only. Do not call collector vendors or the KYA issuer service directly.
 - Never implement or infer KYA policy in the Skill or Agent Plugin.
 - Never retain or reveal raw reports, secrets, credentials, source paths, or free-form
   scanner output when the server provides a bounded projection.
