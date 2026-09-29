@@ -1,0 +1,11 @@
+{
+  "schema": "com.trulioo.plugin-distribution-ledger/v1",
+  "version": "0.7.2",
+  "tag": "v0.7.2",
+  "source_commit": "f3c992ae46ae8d9e81893f21e27a4a316fcc996c",
+  "source_plugin_tree": "b04f0060d09d4b67570f077b18a6eee855576b3c",
+  "managed_tree_sha256": "sha256:0a24bf892deb28d75e5a4837159493ae7eabdfb062c663724241314f99ae9850",
+  "tag_object_sha": "879d42928d6d9a7e53820df16454f11b4a34024e",
+  "tag_commit_sha": "9e53c253e6b57a3de6f667c724f0d52f2b53b2ab",
+  "kya_anchor_sha256": "sha256:2deaf8299658005cbe3158f6f696e2a0bc287c3b8e9e5395be18d3441e1d6744"
+}
