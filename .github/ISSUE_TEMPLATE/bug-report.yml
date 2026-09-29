@@ -44,7 +44,7 @@ body:
       description: >
         From `.trulioo-distribution.json` at the repository root, or the tag you
         installed.
-      placeholder: v0.6.0
+      placeholder: v0.7.0
     validations:
       required: true
   - type: input

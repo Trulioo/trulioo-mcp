@@ -41,13 +41,17 @@ Always run in this order:
 4. config_describe_context(package_id, country_code)
    -> returns exact field names, required consents, data sources, subdivisions
    -> call per country/package combination you will verify against
-   -> in sandbox: also returns synthetic personas for predictable outcomes
+   -> test_entities and test_personas are declared and ALWAYS null (see step 5)
 
-5. config_list_test_entities(package_id, country_code, surface?)
-   -> the subjects THIS session may actually run, and where they come from
-   -> sandbox: synthetic fixtures served by the simulator
-   -> test: your account's own Trulioo test entities, real upstream, VerificationType Demo
-   -> live: available=false, with the credential change that would list them
+5. sandbox_seed_scenario(surface, outcome, data_fields)   [sandbox sessions only]
+   -> DECLARE the outcome you want instead of hunting for a seeded subject
+   -> returns scenario_id (pass it to kyc_verify/kyb_verify), plus the
+      transaction_id and record_id the call will run as, and expires_at
+   -> sandbox_list_scenarios / trulioo://scenarios/active read back what you hold
+   -> sandbox_reset_scenarios is the teardown; calling it twice is a no-op
+   -> test and live: REFUSED, with the reason. The rail is real there, so a
+      declared outcome cannot steer it. Do not look for a fallback.
+   -> config_list_test_entities is the deprecated name for this question
 ```
 
 ## Startup checklist
@@ -73,8 +77,8 @@ Always run in this order:
 The authenticated session decides the mode, and `trulioo_health` is how you read
 it. It is bound to the CREDENTIAL you authenticated with: do not infer it from the
 deployment URL, a `package_id`, a tool name, pricing language, or a cached
-instruction from another session. Call `config_list_test_entities` to see which
-subjects the current session may actually run.
+instruction from another session. On a sandbox session, `sandbox_list_scenarios`
+shows what you have declared; on any other session there are no test subjects to list.
 Never tell a user whether a call was billed: the mode fixes the `VerificationType` this
 server sends, and the invoice is a fact about their Trulioo contract that no tool result
 reports.
@@ -93,11 +97,13 @@ Every tool result carries a `test_mode` marker. `mode`, `data` and `verification
 on all of them; the prose `notice` is sent once per session and then suppressed. An absent
 `notice` is NOT a mode change - branch on `data`.
 
-A test-mode package+country with no seeded subject answers `test_personas: null` plus a
-`seeding_request` block. That is a real answer: report the block's `remedy` to the user and
-offer to hand them `support_request` verbatim. Do not retry, do not try another
-`package_id`, and if a verify is run anyway, do not describe an unmatched invented subject
-as a failed verification.
+There is no test-entity catalogue to read any more: `test_entities` and `test_personas` are
+declared and always null, and the `seeding_request` block is gone. In
+`test` mode the rail is REAL even though the call is unbilled, so nothing can be declared and
+nothing falls back - if a verify is run against a subject the account never seeded, do not
+describe the unmatched result as a failed verification. Do not retry and do not try another
+`package_id`: neither creates a subject. For a deterministic outcome, use a sandbox credential
+and `sandbox_seed_scenario`.
 
 ## Error states
 

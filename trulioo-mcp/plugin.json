@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "trulioo-mcp",
-  "version": "0.6.0",
+  "version": "0.7.2",
   "description": "Business verification (KYB) and agent identity (KYA) for AI agents, over Trulioo's hosted MCP server. Reads the tool contract the connected session advertises instead of assuming one.",
   "author": {
     "name": "Trulioo",
@@ -38,7 +38,15 @@
       ],
       "agents": [
         "./agents/identity-orchestrator.md"
-      ]
+      ],
+      "support": {
+        "mcpTools": true,
+        "packagedSkills": true,
+        "packagedCommands": true,
+        "packagedAgents": true,
+        "mcpAppsUi": false
+      },
+      "note": "Claude Code consumes the MCP tools, packaged skills, command, and identity-orchestrator agent. This projection does not claim MCP Apps UI support in Claude Code."
     },
     "com.anthropic.claude-desktop": {
       "displayName": "Trulioo",
@@ -46,7 +54,14 @@
       "consumes": [
         "mcpServers"
       ],
-      "note": "Claude Desktop consumes the remote MCP server (add-by-URL custom connector, OAuth 2.1). Skills, commands, and the identity-orchestrator agent are Claude Code only; Desktop ignores them. The MCP endpoint URL is the same across every plugin version, so upgrading the plugin never changes what a Desktop connector points at.",
+      "support": {
+        "mcpTools": true,
+        "packagedSkills": false,
+        "packagedCommands": false,
+        "packagedAgents": false,
+        "mcpAppsUi": true
+      },
+      "note": "Claude Desktop consumes the remote MCP server (add-by-URL custom connector, OAuth 2.1) and can render standard MCP Apps UI when the client and server negotiate the extension. Desktop ignores the packaged skills, commands, and identity-orchestrator agent; those are Claude Code features. The MCP endpoint URL is the same across every plugin version, so upgrading the plugin never changes what a Desktop connector points at.",
       "install": {
         "kind": "remote-mcp-connector",
         "url": "https://mcp.trulioo.com/mcp",

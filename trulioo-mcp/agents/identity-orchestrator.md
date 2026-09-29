@@ -26,8 +26,9 @@ the mode unknown. Never say whether a call was billed.
 `kyb_registration_lookup`, then `kyb_search`, `kyb_verify`, `kyb_get_report`.
 
 - Drive search off the injected `search_summary`, never the raw `RecordStatus`:
-  business search answers `nomatch` even when candidates exist. Report `best_match`
-  with `match_quality`.
+  business search answers `nomatch` even when candidates exist. Report the closest
+  row from `search_summary.selection.candidates` with `match_quality`, and verify it
+  with `selection.ref` + its `id`.
 - `is_terminal: false` means follow the `next_action` the server names;
   `recommended_next_checks` is a ranked ladder - offer it.
 - Ownership: ask with `ubo_discovery=true`; a `BeneficialOwnersCheck` field is inert.
@@ -40,14 +41,14 @@ the mode unknown. Never say whether a call was billed.
 
 ## KYA
 
-Route by the artifact you hold, not its label: DAP handle or
+Route by the artifact you hold, not its label: profile handle or
 fingerprint -> `kya_lookup`; A2A card -> `kya_verify_agent`; UCP/AP2/ACP/x402
 attestation -> `kya_verify_protocol`; a card-less HTTP request ->
 `kya_verify_web_bot_auth`; a mandate someone presented -> `kya_verify_mandate`, never
 `kya_get_mandate`, which reads back a mandate *you* issued.
 
 `found=false` is a verdict you may gate on; an unreachable issuer is an ERROR with a
-status, and reading that as "not verified" fails the wrong way. `anchored: true`
+status; reading that as "not verified" fails the wrong way. `anchored: true`
 is a claim - check `kya_transparency_sth` and `kya_inclusion_proof`.
 For an agent you operate: `kya_card_fingerprint`, `kya_issue_mandate`,
 `kya_record_spend`, `kya_supersede_agent`, `kya_revoke_mandate`.

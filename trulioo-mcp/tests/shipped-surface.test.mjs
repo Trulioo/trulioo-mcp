@@ -12,9 +12,11 @@
 // installing anything.
 
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -58,6 +60,164 @@ async function shippedFiles() {
   await walk(PAYLOAD);
   return out;
 }
+
+test("Given the public package when product naming is scanned then Digital Agent Profile is used consistently", async () => {
+  for (const file of await shippedFiles()) {
+    if (!/\.(?:json|md)$/.test(file)) continue;
+    const body = await readFile(file, "utf8");
+    const rel = path.relative(PAYLOAD, file);
+    assert.doesNotMatch(body, /Digital Agent Passports?/i, `${rel} uses the retired product name`);
+    assert.doesNotMatch(body, /\bDAP\b/, `${rel} uses the retired product acronym`);
+  }
+
+  const kyaSkill = await read("skills", "trulioo-kya", "SKILL.md");
+  assert.match(kyaSkill, /Digital Agent Profile/);
+
+  const packageReadme = await read("README.md");
+  const mirrorReadme = await readFile(outer("README.md", "mirror-README.md"), "utf8");
+  for (const [name, body] of [
+    ["package README", packageReadme],
+    ["mirror README", mirrorReadme],
+  ]) {
+    assert.match(
+      body,
+      /starting from an account-owned Digital Agent Profile/i,
+      `${name} must describe agent-first readiness`,
+    );
+    assert.doesNotMatch(
+      body,
+      /starting from a hostname/i,
+      `${name} must not ask callers to supply a readiness hostname`,
+    );
+  }
+});
+
+test("Given the portable package when release metadata is compared then every projection is version 0.7.2", async () => {
+  const plugin = await readJson("plugin.json");
+  const claude = await readJson(".claude-plugin", "plugin.json");
+  const codex = await readJson(".codex-plugin", "plugin.json");
+  const server = JSON.parse(await readFile(outer("server.json"), "utf8"));
+  const marketplace = JSON.parse(
+    await readFile(path.join(outer(".claude-plugin"), "marketplace.json"), "utf8"),
+  );
+  const entry = marketplace.plugins.find((candidate) => candidate.name === plugin.name);
+
+  assert.equal(plugin.version, "0.7.2");
+  assert.equal(claude.version, plugin.version);
+  assert.equal(codex.version, plugin.version);
+  assert.equal(server.version, plugin.version);
+  assert.equal(marketplace.version, plugin.version);
+  assert.equal(entry?.version, plugin.version);
+  assert.equal(entry?.source?.ref, `v${plugin.version}`);
+});
+
+test("Given a ChatGPT workspace binding when it is validated then only a realized Trulioo connection is accepted", async () => {
+  const committed = await readJson(".app.json");
+  const template = await readJson(".app.json.example");
+  assert.deepEqual(committed, { apps: {} });
+  assert.deepEqual(template, {
+    apps: {
+      trulioo: {
+        id: "plugin_asdk_app_REPLACE_WITH_CHATGPT_CONNECTION_ID",
+      },
+    },
+  });
+
+  for (const file of await shippedFiles()) {
+    if (!/\.(?:json|md)$/.test(file) || file.endsWith(".app.json.example")) continue;
+    const body = await readFile(file, "utf8");
+    assert.doesNotMatch(
+      body,
+      /plugin_asdk_app_(?!REPLACE_WITH_CHATGPT_CONNECTION_ID)[A-Za-z0-9_-]+/,
+      `${path.relative(PAYLOAD, file)} commits a workspace-owned ChatGPT connection id`,
+    );
+  }
+
+  const stage = mkdtempSync(path.join(os.tmpdir(), "trulioo-chatgpt-binding-"));
+  const script = outer("check-chatgpt-app-binding.mjs");
+  const check = (name, binding) => {
+    const file = path.join(stage, name);
+    writeFileSync(file, JSON.stringify(binding));
+    return spawnSync(process.execPath, [script, file], {
+      encoding: "utf8",
+    });
+  };
+
+  try {
+    const fixtureId = ["plugin", "asdk", "app", "testfixture"].join("_");
+    const valid = check("valid.json", {
+      apps: { trulioo: { id: fixtureId } },
+    });
+    assert.equal(valid.status, 0, `${valid.stdout}${valid.stderr}`);
+    assert.match(valid.stdout, /ChatGPT connection binding shape valid/);
+
+    for (const [name, binding] of [
+      ["placeholder.json", template],
+      ["partial-placeholder.json", {
+        apps: {
+          trulioo: {
+            id: "plugin_asdk_app_REPLACE_WITH_CHATGPT_CONNECTION_ID_suffix",
+          },
+        },
+      }],
+      ["unbound.json", committed],
+      ["wrong-app.json", { apps: { other: { id: fixtureId } } }],
+      ["extra-field.json", {
+        apps: { trulioo: { id: fixtureId, secret: "must-not-be-here" } },
+      }],
+    ]) {
+      const rejected = check(name, binding);
+      assert.notEqual(rejected.status, 0, `${name} was accepted`);
+      assert.match(`${rejected.stdout}${rejected.stderr}`, /ChatGPT connection binding invalid/);
+    }
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
+  }
+});
+
+test("Given Claude client projections when support is inspected then tools, skills, and UI are not conflated", async () => {
+  const plugin = await readJson("plugin.json");
+  const claudeCode = plugin.extensions["com.anthropic.claude-code"];
+  const claudeDesktop = plugin.extensions["com.anthropic.claude-desktop"];
+
+  assert.deepEqual(claudeCode.support, {
+    mcpTools: true,
+    packagedSkills: true,
+    packagedCommands: true,
+    packagedAgents: true,
+    mcpAppsUi: false,
+  });
+  assert.match(claudeCode.note, /does not claim MCP Apps UI support/i);
+
+  assert.deepEqual(claudeDesktop.support, {
+    mcpTools: true,
+    packagedSkills: false,
+    packagedCommands: false,
+    packagedAgents: false,
+    mcpAppsUi: true,
+  });
+  assert.match(claudeDesktop.note, /MCP Apps UI/i);
+  assert.match(claudeDesktop.note, /negotiat/i);
+
+  const packageReadme = await read("README.md");
+  const mirrorReadme = await readFile(outer("README.md", "mirror-README.md"), "utf8");
+  for (const [where, body] of [
+    ["trulioo-mcp/README.md", packageReadme],
+    ["mirror README", mirrorReadme],
+  ]) {
+    assert.match(
+      body,
+      /\| Claude Code \| Yes \| Yes \| Not claimed by this projection \|/,
+      where,
+    );
+    assert.match(
+      body,
+      /\| Claude Desktop \| Yes \| No \| Yes, when the client and server negotiate MCP Apps \|/,
+      where,
+    );
+    assert.match(body, /\| Claude API MCP connector \| Tools only \| No \| No \|/, where);
+  }
+});
 
 test("Given the shipped skill set when it is enumerated then it is exactly the declared subset", async () => {
   const entries = await readdir(path.join(PAYLOAD, "skills"), { withFileTypes: true });
@@ -280,12 +440,11 @@ test("Given the shipped bytes when scanned then they carry no credential materia
   }
 });
 
-test("Given the assurance skill when it selects an execution route then it cannot scan or decide policy", async () => {
+test("Given the signed assurance skill when the current contract lacks assessment then it stops unavailable", async () => {
   const skill = await read("skills", "trulioo-agent-assurance", "SKILL.md");
 
   assert.match(skill, /trulioo_capabilities/);
-  for (const shape of [/remote/i, /local/i, /spark/i, /poll/i, /signals/i, /coverage/i,
-    /provenance/i, /disagreement/i, /unavailable/i]) {
+  for (const shape of [/signals/i, /coverage/i, /provenance/i, /disagreement/i, /unavailable/i]) {
     assert.match(skill, shape);
   }
 
@@ -300,15 +459,19 @@ test("Given the assurance skill when it selects an execution route then it canno
     /\bcurl\s+/i,
     /\bscore\s*(?:>=|<=|>|<|==)/i,
     /\b\d+(?:\.\d+)?\s*(?:points?|percent|%)/i,
+    /kya_assess_artifact/,
+    /kya_assessment_status/,
     /kya_submit_assurance_evidence/,
   ]) {
     assert.doesNotMatch(skill, forbidden);
   }
 
+  assert.match(skill, /Do not call a planned operation/i);
+  assert.match(skill, /If the required operation is not advertised,[\s\S]*stop that route/i);
+  assert.match(skill, /do not guess tool names/i);
   assert.match(skill, /never execute scanners/i);
   assert.match(skill, /never implement or infer KYA policy/i);
   assert.match(skill, /never expose or translate a vendor score/i);
-  assert.match(skill, /do not guess tool names/i);
   assert.match(skill, /Call the Trulioo MCP server only/i);
   assert.match(skill, /Do not call collector vendors or the KYA issuer service directly/i);
   assert.match(skill, /Never retain or reveal raw reports/i);

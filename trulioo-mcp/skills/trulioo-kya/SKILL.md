@@ -1,6 +1,6 @@
 ---
 name: trulioo-kya
-description: "Resolve Digital Agent Passports, verify agent credentials, and manage scoped mandates. kya_lookup is DAP discovery; verify the artifact type actually presented and treat issuer outages as errors."
+description: "Resolve Digital Agent Profiles, verify agent credentials, and manage scoped mandates. kya_lookup is profile discovery; verify the artifact type actually presented and treat issuer outages as errors."
 ---
 
 # trulioo-kya
@@ -25,18 +25,19 @@ it, because a surface that answers `kya_lookup` and then cannot verify what it f
 than either whole state. Ask `trulioo_capabilities` how many there are; a count written here
 is one that nothing measures.
 
-Measuring what a host publishes for agents - starting from a hostname rather than from a
-presented credential - is `trulioo-agent-readiness`, a separate skill.
+Proving the exact interface domain and measuring the outside view of an account-owned agent
+is `trulioo-agent-readiness`, a separate skill. That flow starts from a selected Digital
+Agent Profile id, never from a caller-supplied hostname.
 
 ## Discovery and credentialed operations
 
-`kya_lookup` is the DAP discovery tool: it resolves a public DAP id or fingerprint to the
-issuer's anchored trust record. Other KYA operations may require the connected account
-credential, because they verify, issue, mutate, or read tenant-scoped state.
+`kya_lookup` is the Digital Agent Profile discovery tool: it resolves a public profile id or
+fingerprint to the issuer's anchored trust record. Other KYA operations may require the
+connected account credential, because they verify, issue, mutate, or read tenant-scoped state.
 
 Five need none, and they are what a relying party with no Trulioo relationship can still
-reach: `kya_lookup` (resolve a DAP trust record), `kya_rails` (what a rail requires), and the
-three artifacts anyone may check - `kya_transparency_sth`, `kya_inclusion_proof`,
+reach: `kya_lookup` (resolve a Digital Agent Profile trust record), `kya_rails` (what a rail
+requires), and the three artifacts anyone may check - `kya_transparency_sth`, `kya_inclusion_proof`,
 `kya_status_list`.
 
 ## Verifying somebody else's agent
@@ -45,7 +46,7 @@ Choose the tool from the artifact the relying party actually received.
 
 | You have | Ask |
 |---|---|
-| a DAP handle or fingerprint | `kya_lookup` - resolve the anchored DAP record |
+| a Digital Agent Profile handle or fingerprint | `kya_lookup` - resolve the anchored profile record |
 | a full A2A card | `kya_verify_agent` - runs the kernel against live issuer keys and live revocation state |
 | a UCP / AP2 / ACP / x402 attestation | `kya_verify_protocol` - the money-carrying rails |
 | an HTTP request and no card at all | `kya_verify_web_bot_auth` - RFC 9421 signatures, key fetched from the Signature-Agent domain |
@@ -76,7 +77,7 @@ freshness, key binding, and algorithm.
 Gossiping the signed tree head is the defense against an issuer serving two logs, which is
 why it is public.
 
-For revocation, a DAP's `status_reference` is `{issuer}/kya/status/list/{id}#{index}`: pass
+For revocation, a profile's `status_reference` is `{issuer}/kya/status/list/{id}#{index}`: pass
 `{id}` to `kya_status_list`, verify the returned JWS against the issuer's JWKS, then read bit
 `{index}` of `credentialSubject.encodedList`. It is the signed string rather than a decoded
 answer on purpose - a verifier checks the signature, not our decoding of it. For a
@@ -136,7 +137,10 @@ The lifecycle:
    compact EdDSA `agent-pop+jwt` with the agent key, and pass it to `kya_issue_mandate`.
 2. To roll a version forward, `kya_supersede_agent`. The fingerprint changes; the stable
    Agent-ID does not.
-3. `kya_retire_agent` is TERMINAL. A retired agent resolves as not_found and cannot be
+3. Prove the current card's exact HTTPS interface host with `kya_get_agent_domain`,
+   `kya_start_agent_domain_challenge`, and `kya_verify_agent_domain`. Those tools accept the
+   selected `agent_id`; account, host, and DNS authority remain server-derived.
+4. `kya_retire_agent` is TERMINAL. A retired agent resolves as not_found and cannot be
    superseded or reinstated. Roll forward instead of retiring and re-creating.
 
 **Keep the agent's private key.** Succession must be authorized by the INCUMBENT key: you

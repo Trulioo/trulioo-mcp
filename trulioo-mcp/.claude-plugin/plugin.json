@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "trulioo-mcp",
   "displayName": "Trulioo",
-  "version": "0.6.0",
+  "version": "0.7.2",
   "description": "Business verification (KYB) and agent identity (KYA) for AI agents, over Trulioo's hosted MCP server. Reads the tool contract the connected session advertises instead of assuming one.",
   "author": {
     "name": "Trulioo",

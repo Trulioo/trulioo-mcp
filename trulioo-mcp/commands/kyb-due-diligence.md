@@ -12,11 +12,13 @@ Follow these steps in order:
    `config_describe_context(package_id, country_code)` for the valid
    `business_data_fields` and required consents.
 2. Call `kyb_search(package_id, business_name, country_code)`. Read the injected
-   `search_summary` (best_match / match_quality / top_matches / candidate_count),
+   `search_summary` (candidate_count / decision / match_quality / selection),
    NOT the raw `RecordStatus` - business search returns `nomatch` even
    when candidates exist. Report the closest candidate and how close it is
-   (`best_match` + `match_quality`: strong / partial / weak). Take the registration
-   number from `search_summary.best_match` or `top_matches`.
+   (`match_quality`: strong / partial / weak). Choose a row from
+   `search_summary.selection.candidates` by its `id`, then hand
+   `selection.ref` + that `candidate_id` to `kyb_verify` - the registration number
+   is resolved server-side and is never retyped.
    Offer the `recommended_next_checks` ladder: a strong match -> verify to confirm;
    a weak or near match -> step up to DocV.
 3. Call `kyb_verify` with `package_id`, `country_code`, and a `business_data_fields`

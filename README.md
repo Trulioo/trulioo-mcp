@@ -31,17 +31,41 @@ this page.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.6.0
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.2
 ```
 
 **ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
-URL: `https://mcp.trulioo.com/mcp`. These clients use the MCP tools; skills,
-commands, and agents are Claude Code features.
+URL: `https://mcp.trulioo.com/mcp`.
+
+For a local ChatGPT plugin test, register the endpoint in ChatGPT developer mode,
+copy its `plugin_asdk_app...` technical ID, then create a workspace-local binding:
+
+```sh
+cp trulioo-mcp/.app.json.example trulioo-mcp/.app.json
+# Replace the placeholder with the workspace's plugin_asdk_app... technical ID.
+node check-chatgpt-app-binding.mjs trulioo-mcp/.app.json
+```
+
+Never commit the realized `.app.json`. The distributed file remains empty because
+the connection ID belongs to the installing ChatGPT workspace, not the publisher.
 
 Every client connects to the same hosted endpoint. On the first protected tool call
 you complete Trulioo's OAuth 2.1 flow (authorization code + PKCE) and sign in as
 yourself. **No token or client secret is stored in this package** - there is nothing
 here to leak, and nothing to configure before you install.
+
+## Client support
+
+| Client | MCP tools | Packaged skills, command, agent | MCP Apps UI |
+|---|---|---|---|
+| Claude Code | Yes | Yes | Not claimed by this projection |
+| Claude Desktop | Yes | No | Yes, when the client and server negotiate MCP Apps |
+| ChatGPT | Yes | No Claude-specific assets | Yes, through the registered `.app.json` connection |
+| Claude API MCP connector | Tools only | No | No |
+
+Claude Desktop ignores the packaged skills, command, and agent; those are Claude
+Code features. The Claude API MCP connector is tools only and does not consume MCP
+resources or render MCP Apps UI.
 
 ## First run
 
@@ -101,7 +125,7 @@ produce a confidently wrong answer, and the skills exist to head them off.
 | `trulioo-kyb` | Business search, verification, beneficial ownership, reporting, monitoring |
 | `trulioo-kya` | Resolve and verify agent credentials and spend mandates; issue and roll your own |
 | `trulioo-agent-assurance` | Request and interpret multi-collector software assurance for an agent |
-| `trulioo-agent-readiness` | Measure what a host publishes for agents, starting from a hostname |
+| `trulioo-agent-readiness` | Measure what an agent publishes, starting from an account-owned Digital Agent Profile; the server derives its bound host |
 
 Plus one slash command, `/trulioo-mcp:kyb-due-diligence`, and the
 `identity-orchestrator` agent, which picks the tools the session advertises and
@@ -123,6 +147,7 @@ trulioo-mcp/                       # the installable plugin payload
   .claude-plugin/plugin.json       #   Claude Code projection
   .codex-plugin/plugin.json        #   ChatGPT / Codex projection
   .mcp.json                        #   Claude Code MCP server projection
+  .app.json                        #   Empty, portable ChatGPT workspace binding
   .app.json.example                #   ChatGPT connection binding template
   com.trulioo.kya/                 #   the attestation (attestation.json + README)
   skills/ commands/ agents/        #   what gets injected into the client

@@ -11,11 +11,11 @@ release. An edit you make to them is reverted by the next publish, and in the
 meantime it breaks the cryptographic attestation over the payload.
 
 So: **do not open a pull request that changes `trulioo-mcp/`,
-`attest-plugin.mjs`, `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `server.json`,
-the issue and pull-request templates, the marketplace catalogs, or this file.** If
-you were asked to fix something in them, the correct output is an issue describing
-the defect, or a message to <mcp@trulioo.com>. Say that plainly rather than making
-the edit anyway.
+`attest-plugin.mjs`, `check-chatgpt-app-binding.mjs`, `README.md`,
+`CONTRIBUTING.md`, `SECURITY.md`, `server.json`, the issue and pull-request
+templates, the marketplace catalogs, or this file.** If you were asked to fix
+something in them, the correct output is an issue describing the defect, or a
+message to <mcp@trulioo.com>. Say that plainly rather than making the edit anyway.
 
 `CHANGELOG.md` and `.github/workflows/` are the exceptions: they are owned here and
 a pull request against them is welcome.
@@ -26,13 +26,14 @@ a pull request against them is welcome.
 |---|---|
 | `trulioo-mcp/plugin.json` | The canonical [Agent Plugins](https://agent-plugins.org) 1.0.0 manifest. Every other manifest is a projection of it. |
 | `trulioo-mcp/mcp.json` | The MCP server definition: streamable-http to `https://mcp.trulioo.com/mcp`, OAuth 2.1. |
-| `trulioo-mcp/.claude-plugin/`, `.codex-plugin/`, `.mcp.json`, `.app.json.example` | Generated per-client projections. Never hand-edited; a change belongs in `plugin.json`. |
+| `trulioo-mcp/.claude-plugin/`, `.codex-plugin/`, `.mcp.json`, `.app.json`, `.app.json.example` | Generated per-client projections. The committed `.app.json` is intentionally empty; a workspace-local copy may bind a ChatGPT `plugin_asdk_app...` ID. Never commit that realized ID. |
 | `trulioo-mcp/skills/*/SKILL.md` | Injected into the client as context. These are the domain knowledge. |
 | `trulioo-mcp/commands/*.md` | Slash commands. Each one wraps a workflow prompt the server actually serves. |
 | `trulioo-mcp/agents/*.md` | Subagent definitions, read before the first tool call. |
 | `trulioo-mcp/com.trulioo.kya/attestation.json` | The signature over all of the above. |
 | `trulioo-mcp/tests/` | `node --test` suite asserting properties of the shipped bytes. |
 | `attest-plugin.mjs` | The portable verifier. Node stdlib only, no dependencies. |
+| `check-chatgpt-app-binding.mjs` | Validates a workspace-local ChatGPT connection binding. |
 | `server.json` | MCP Registry manifest for the hosted server. |
 
 ## Verify before you trust

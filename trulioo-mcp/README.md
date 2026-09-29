@@ -20,8 +20,31 @@ with PKCE.
 Add `https://mcp.trulioo.com/mcp` as a remote MCP connector. On the first
 protected tool call the client opens the Trulioo OAuth flow in a browser.
 
-Claude Desktop consumes the MCP server only. Skills, commands, and the agent below
-are Claude Code features and do not apply there.
+For a local ChatGPT plugin test, first register that endpoint in ChatGPT developer
+mode and copy the technical ID, which starts with `plugin_asdk_app`. Make a
+workspace-local copy of the package, copy `.app.json.example` to `.app.json`,
+replace the placeholder, then validate the binding from the mirror repository root:
+
+```sh
+node check-chatgpt-app-binding.mjs trulioo-mcp/.app.json
+```
+
+The committed `.app.json` stays `{"apps":{}}`. A connection ID belongs to one
+ChatGPT workspace and must never be committed or treated as publisher-signed
+package identity.
+
+## Client support
+
+| Client | MCP tools | Packaged skills, command, agent | MCP Apps UI |
+|---|---|---|---|
+| Claude Code | Yes | Yes | Not claimed by this projection |
+| Claude Desktop | Yes | No | Yes, when the client and server negotiate MCP Apps |
+| ChatGPT | Yes | No Claude-specific assets | Yes, through the registered `.app.json` connection |
+| Claude API MCP connector | Tools only | No | No |
+
+Claude Desktop ignores the packaged skills, command, and agent. Those are Claude
+Code features. The Claude API MCP connector is a separate tools-only integration;
+it does not consume MCP resources or render MCP Apps UI.
 
 ## What you get
 
@@ -40,7 +63,7 @@ interpretation for its domain, so an agent does not have to rediscover them:
 | `trulioo-kyb` | Business search, verification, beneficial ownership, reporting, monitoring |
 | `trulioo-kya` | Resolve and verify agent credentials and spend mandates; issue and roll your own |
 | `trulioo-agent-assurance` | Request and interpret multi-collector software assurance for an agent |
-| `trulioo-agent-readiness` | Measure what a host publishes for agents, starting from a hostname |
+| `trulioo-agent-readiness` | Measure what an agent publishes, starting from an account-owned Digital Agent Profile; the server derives its bound host |
 
 **Slash command** - `/trulioo-mcp:kyb-due-diligence`, the guided business
 due-diligence sequence end to end.

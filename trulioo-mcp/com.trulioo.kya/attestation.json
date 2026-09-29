@@ -11,48 +11,48 @@
   },
   "plugin": {
     "name": "trulioo-mcp",
-    "version": "0.6.0"
+    "version": "0.7.2"
   },
-  "subject_digest": "sha256:a5fe14e71af31b442170e0ba720984038ebdd2efae27024d1f08da67a05bc067",
+  "subject_digest": "sha256:c6a653c2a56b2998dc9dd87710caed11f76d737da08dc676f5d93c701e10f9ec",
   "files": {
-    "plugin.json": "sha256:ad34abdedaa06acab97b5793613b6516e8db4c83012c4e1523104482968542ab",
+    "plugin.json": "sha256:0970f9fb41edc2c0d96c488073b8a5d2aaa3dc7707ef606012bd80df9443eb1e",
     "mcp.json": "sha256:252c9a27b62e7d4d6c1848dcc4302e691f34868dcaf3edc40541458e855b83ff",
     "skills/trulioo-agent-assurance/SKILL.md": "sha256:616e87a8a641329ae41ddd6d848b5f9211d78ab1fb1cf74cbb1a347a5c95a203",
-    "skills/trulioo-agent-readiness/SKILL.md": "sha256:ca29787c5b19d9e3e10609aa75204a38b3466b631b993116dfb1770815562084",
-    "skills/trulioo-kya/SKILL.md": "sha256:2126ac2c28399313ccdb594595f4319200ee77d254bda8e3b698e511462cf266",
-    "skills/trulioo-kyb/SKILL.md": "sha256:2100fbaffa560c8da8353204189f2d7b7cf1d571a2551770fd157d6ac6ed4642",
-    "skills/trulioo-onboarding/SKILL.md": "sha256:5520c71ea7298d3fe2417935f2599654167713b659125ae79faa4df1dd72558d",
-    "commands/kyb-due-diligence.md": "sha256:db14d0461220d5b91512bc99db17f2aa56ee2b40b75b1a5313543686cc42446c",
-    "agents/identity-orchestrator.md": "sha256:0bfc4befe83ffaa30ce8dd29e02419a4d557d2ef5e2050270081c6870a18ca6b",
-    ".claude-plugin/plugin.json": "sha256:c3c76ef0d47c8fcfb500e921818cf2fe51610e071a93054a6db7a56b70677741",
-    ".codex-plugin/plugin.json": "sha256:220afd72e14cd24eb6f808eee278f61dbd97f72802c220901fe04e3ae41ed2d5",
+    "skills/trulioo-agent-readiness/SKILL.md": "sha256:07e63fffc3c3ba0f81d90d7ee195154435efb459c72fa4f7b04febdb620704a0",
+    "skills/trulioo-kya/SKILL.md": "sha256:68e69aa5504c90b77ea565af2d9af1aee5123ef36169bd7df53a5d38d9066bfe",
+    "skills/trulioo-kyb/SKILL.md": "sha256:1b22685c0ef95aece10400d681ab1df67a0f93339b4497c6e3b7029405bd6c83",
+    "skills/trulioo-onboarding/SKILL.md": "sha256:102ee956c46026e4b8c1b2c8ca067d6078e8fe42f627a7d75afcee9115df9e63",
+    "commands/kyb-due-diligence.md": "sha256:6d5c79d62f52ebfe328804c2e863c6f928d673432b0674b300f5baa466cb2801",
+    "agents/identity-orchestrator.md": "sha256:17764e98fe6826ba35a9f2d237bf2266a20856ba416720ab06769823a6262c72",
+    ".claude-plugin/plugin.json": "sha256:b5d4f88ffba696be7486edfab43911bdb9fce3f09944b97922b9aeb5a2e0cee7",
+    ".codex-plugin/plugin.json": "sha256:52aa6d461f046cc95c934cd35cef44e2f46a34c07232942e73f122e30c109d1a",
     ".mcp.json": "sha256:4fadfcd6930263db947eed8386981d11f05644431e5b011a6d35f7fd61e5ff76",
     ".app.json.example": "sha256:ba7197e3190be6f1524cf37e73f0d49ff37b4545aa48f8ed39e072a4ef54e063"
   },
   "claims": {
     "spec": "com.trulioo.kya/artifact-attestation/1.0.0",
-    "subject": "trulioo-mcp@0.6.0",
+    "subject": "trulioo-mcp@0.7.2",
     "subject_kind": "plugin",
-    "subject_digest": "sha256:a5fe14e71af31b442170e0ba720984038ebdd2efae27024d1f08da67a05bc067",
+    "subject_digest": "sha256:c6a653c2a56b2998dc9dd87710caed11f76d737da08dc676f5d93c701e10f9ec",
     "files": {
       ".app.json.example": "sha256:ba7197e3190be6f1524cf37e73f0d49ff37b4545aa48f8ed39e072a4ef54e063",
-      ".claude-plugin/plugin.json": "sha256:c3c76ef0d47c8fcfb500e921818cf2fe51610e071a93054a6db7a56b70677741",
-      ".codex-plugin/plugin.json": "sha256:220afd72e14cd24eb6f808eee278f61dbd97f72802c220901fe04e3ae41ed2d5",
+      ".claude-plugin/plugin.json": "sha256:b5d4f88ffba696be7486edfab43911bdb9fce3f09944b97922b9aeb5a2e0cee7",
+      ".codex-plugin/plugin.json": "sha256:52aa6d461f046cc95c934cd35cef44e2f46a34c07232942e73f122e30c109d1a",
       ".mcp.json": "sha256:4fadfcd6930263db947eed8386981d11f05644431e5b011a6d35f7fd61e5ff76",
-      "agents/identity-orchestrator.md": "sha256:0bfc4befe83ffaa30ce8dd29e02419a4d557d2ef5e2050270081c6870a18ca6b",
-      "commands/kyb-due-diligence.md": "sha256:db14d0461220d5b91512bc99db17f2aa56ee2b40b75b1a5313543686cc42446c",
+      "agents/identity-orchestrator.md": "sha256:17764e98fe6826ba35a9f2d237bf2266a20856ba416720ab06769823a6262c72",
+      "commands/kyb-due-diligence.md": "sha256:6d5c79d62f52ebfe328804c2e863c6f928d673432b0674b300f5baa466cb2801",
       "mcp.json": "sha256:252c9a27b62e7d4d6c1848dcc4302e691f34868dcaf3edc40541458e855b83ff",
-      "plugin.json": "sha256:ad34abdedaa06acab97b5793613b6516e8db4c83012c4e1523104482968542ab",
+      "plugin.json": "sha256:0970f9fb41edc2c0d96c488073b8a5d2aaa3dc7707ef606012bd80df9443eb1e",
       "skills/trulioo-agent-assurance/SKILL.md": "sha256:616e87a8a641329ae41ddd6d848b5f9211d78ab1fb1cf74cbb1a347a5c95a203",
-      "skills/trulioo-agent-readiness/SKILL.md": "sha256:ca29787c5b19d9e3e10609aa75204a38b3466b631b993116dfb1770815562084",
-      "skills/trulioo-kya/SKILL.md": "sha256:2126ac2c28399313ccdb594595f4319200ee77d254bda8e3b698e511462cf266",
-      "skills/trulioo-kyb/SKILL.md": "sha256:2100fbaffa560c8da8353204189f2d7b7cf1d571a2551770fd157d6ac6ed4642",
-      "skills/trulioo-onboarding/SKILL.md": "sha256:5520c71ea7298d3fe2417935f2599654167713b659125ae79faa4df1dd72558d"
+      "skills/trulioo-agent-readiness/SKILL.md": "sha256:07e63fffc3c3ba0f81d90d7ee195154435efb459c72fa4f7b04febdb620704a0",
+      "skills/trulioo-kya/SKILL.md": "sha256:68e69aa5504c90b77ea565af2d9af1aee5123ef36169bd7df53a5d38d9066bfe",
+      "skills/trulioo-kyb/SKILL.md": "sha256:1b22685c0ef95aece10400d681ab1df67a0f93339b4497c6e3b7029405bd6c83",
+      "skills/trulioo-onboarding/SKILL.md": "sha256:102ee956c46026e4b8c1b2c8ca067d6078e8fe42f627a7d75afcee9115df9e63"
     },
     "issuer_id": "kya:trulioo:plugin-issuer",
     "issuer_uri": "https://identity.trulioo.com",
     "tenant": "acct_01kzak7he0bj4fh0mj5dtnd4s7",
     "statement": "Issued by KYA issuer 'kya:trulioo:plugin-issuer' at the request of tenant 'acct_01kzak7he0bj4fh0mj5dtnd4s7'; the subject_digest seals the artifact content."
   },
-  "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6InRydWxpb28tYXR0ZXN0YXRpb24tMSIsInR5cCI6Imt5YS1hcnRpZmFjdC1hdHRlc3RhdGlvbitqd3MifQ.eyJzcGVjIjoiY29tLnRydWxpb28ua3lhL2FydGlmYWN0LWF0dGVzdGF0aW9uLzEuMC4wIiwic3ViamVjdCI6InRydWxpb28tbWNwQDAuNi4wIiwic3ViamVjdF9raW5kIjoicGx1Z2luIiwic3ViamVjdF9kaWdlc3QiOiJzaGEyNTY6YTVmZTE0ZTcxYWYzMWI0NDIxNzBlMGJhNzIwOTg0MDM4ZWJkZDJlZmFlMjcwMjRkMWYwOGRhNjdhMDViYzA2NyIsImZpbGVzIjp7Ii5hcHAuanNvbi5leGFtcGxlIjoic2hhMjU2OmJhNzE5N2UzMTkwYmU2ZjE1MjRjZjM3ZTczZjBkNDlmZjM3YjQ1NDVhYTQ4ZjhlZDM5ZTA3MmE0ZWY1NGUwNjMiLCIuY2xhdWRlLXBsdWdpbi9wbHVnaW4uanNvbiI6InNoYTI1NjpjM2M3NmVmMGQ0N2M4ZmNmYjUwMGU5MjE4MThjZjJmZTUxNjEwZTA3MWE5MzA1NGE2ZGI3YTU2YjcwNjc3NzQxIiwiLmNvZGV4LXBsdWdpbi9wbHVnaW4uanNvbiI6InNoYTI1NjoyMjBhZmQ3MmUxNGNkMjRlYjZmODA4ZWVlMjc4ZjYxZGJkOTdmNzI4MDJjMjIwOTAxZmUwNGUzYWU0MWVkMmQ1IiwiLm1jcC5qc29uIjoic2hhMjU2OjRmYWRmY2Q2OTMwMjYzZGI5NDdlZWQ4Mzg2OTgxZDExZjA1NjQ0NDMxZTViMDExYTZkMzVmN2ZkNjFlNWZmNzYiLCJhZ2VudHMvaWRlbnRpdHktb3JjaGVzdHJhdG9yLm1kIjoic2hhMjU2OjBiZmM0YmVmZTgzZmZhYTMwY2U4ZGQyOWUwMjQxOWE0ZDU1N2QyZWY1ZTIwNTAyNzAwODFjNjg3MGExOGNhNmIiLCJjb21tYW5kcy9reWItZHVlLWRpbGlnZW5jZS5tZCI6InNoYTI1NjpkYjE0ZDA0NjEyMjBkNWI5MTUxMmJjOTlkYjE3ZjJhYTU2ZWUyYjQwYjc1YjFhNTMxMzU0MzY4NmNjNDI0NDZjIiwibWNwLmpzb24iOiJzaGEyNTY6MjUyYzlhMjdiNjJlN2Q0ZDZjMTg0OGRjYzQzMDJlNjkxZjM0ODY4ZGNhZjNlZGM0MDU0MTQ1OGU4NTViODNmZiIsInBsdWdpbi5qc29uIjoic2hhMjU2OmFkMzRhYmRlZGFhMDZhY2FiOTdiNTc5MzYxM2I2NTE2ZThkYjRjODMwMTJjNGUxNTIzMTA0NDgyOTY4NTQyYWIiLCJza2lsbHMvdHJ1bGlvby1hZ2VudC1hc3N1cmFuY2UvU0tJTEwubWQiOiJzaGEyNTY6NjE2ZTg3YThhNjQxMzI5YWU0MWRkZDZkODQ4YjVmOTIxMWQ3OGFiMWZiMWNmNzRjYmIxYTM0N2E1Yzk1YTIwMyIsInNraWxscy90cnVsaW9vLWFnZW50LXJlYWRpbmVzcy9TS0lMTC5tZCI6InNoYTI1NjpjYTI5Nzg3YzViMTlkOWUzZTEwNjA5YWE3NTIwNGEzOGIzNDY2YjYzMWI5OTMxMTZkZmIxNzcwODE1NTYyMDg0Iiwic2tpbGxzL3RydWxpb28ta3lhL1NLSUxMLm1kIjoic2hhMjU2OjIxMjZhYzJjMjgzOTkzMTNjY2RiNTk0NTk1ZjQzMTkyMDBlZTc3ZDI1NGJkYThlM2I2OThlNTExNDYyY2YyNjYiLCJza2lsbHMvdHJ1bGlvby1reWIvU0tJTEwubWQiOiJzaGEyNTY6MjEwMGZiYWZmYTU2MGM4ZGE4MzUzMjA0MTg5ZjJkN2I3Y2YxZDU3MWEyNTUxNzcwZmQxNTdkNmFjNmVkNDY0MiIsInNraWxscy90cnVsaW9vLW9uYm9hcmRpbmcvU0tJTEwubWQiOiJzaGEyNTY6NTUyMGM3MWVhNzI5OGQzZmUyNDE3OTM1ZjI1OTk2NTQxNjc3MTNiNjU5MTI1YWU3OWZhYTRkZjFkZDcyNTU4ZCJ9LCJpc3N1ZXJfaWQiOiJreWE6dHJ1bGlvbzpwbHVnaW4taXNzdWVyIiwiaXNzdWVyX3VyaSI6Imh0dHBzOi8vaWRlbnRpdHkudHJ1bGlvby5jb20iLCJ0ZW5hbnQiOiJhY2N0XzAxa3phazdoZTBiajRmaDBtajVkdG5kNHM3Iiwic3RhdGVtZW50IjoiSXNzdWVkIGJ5IEtZQSBpc3N1ZXIgJ2t5YTp0cnVsaW9vOnBsdWdpbi1pc3N1ZXInIGF0IHRoZSByZXF1ZXN0IG9mIHRlbmFudCAnYWNjdF8wMWt6YWs3aGUwYmo0ZmgwbWo1ZHRuZDRzNyc7IHRoZSBzdWJqZWN0X2RpZ2VzdCBzZWFscyB0aGUgYXJ0aWZhY3QgY29udGVudC4ifQ.J6MaUGPACJW4cZrHCeVRIUsSsdSf9U7bIbLI-QnQwZ_dZIktzyR3uNrqL99W641HdVkd5y2UpbX1s8C1-y0tDQ"
+  "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6InRydWxpb28tYXR0ZXN0YXRpb24tMSIsInR5cCI6Imt5YS1hcnRpZmFjdC1hdHRlc3RhdGlvbitqd3MifQ.eyJzcGVjIjoiY29tLnRydWxpb28ua3lhL2FydGlmYWN0LWF0dGVzdGF0aW9uLzEuMC4wIiwic3ViamVjdCI6InRydWxpb28tbWNwQDAuNy4yIiwic3ViamVjdF9raW5kIjoicGx1Z2luIiwic3ViamVjdF9kaWdlc3QiOiJzaGEyNTY6YzZhNjUzYzJhNTZiMjk5OGRjOWRkODc3MTBjYWVkMTFmNzZkNzM3ZGEwOGRjNjc2ZjVkOTNjNzAxZTEwZjllYyIsImZpbGVzIjp7Ii5hcHAuanNvbi5leGFtcGxlIjoic2hhMjU2OmJhNzE5N2UzMTkwYmU2ZjE1MjRjZjM3ZTczZjBkNDlmZjM3YjQ1NDVhYTQ4ZjhlZDM5ZTA3MmE0ZWY1NGUwNjMiLCIuY2xhdWRlLXBsdWdpbi9wbHVnaW4uanNvbiI6InNoYTI1NjpiNWQ0Zjg4ZmZiYTY5NmJlNzQ4NmVkZmFiNDM5MTFiZGI5ZmNlM2YwOTk0NGI5NzkyMmI5YWViNWEyZTBjZWU3IiwiLmNvZGV4LXBsdWdpbi9wbHVnaW4uanNvbiI6InNoYTI1Njo1MmFhNmQ0NjFmMDQ2Y2M5NWM5MzRjZDM1Y2VmNDRlMmY0NmEzNGMwNzIzMjk0MmU3M2YxMjJlMzBjMTA5ZDFhIiwiLm1jcC5qc29uIjoic2hhMjU2OjRmYWRmY2Q2OTMwMjYzZGI5NDdlZWQ4Mzg2OTgxZDExZjA1NjQ0NDMxZTViMDExYTZkMzVmN2ZkNjFlNWZmNzYiLCJhZ2VudHMvaWRlbnRpdHktb3JjaGVzdHJhdG9yLm1kIjoic2hhMjU2OjE3NzY0ZTk4ZmU2ODI2YmEzNWE5ZjJkMjM3YmYyMjY2YTIwODU2YmE0MTY3MjBhYjA2NzY5ODIzYTYyNjJjNzIiLCJjb21tYW5kcy9reWItZHVlLWRpbGlnZW5jZS5tZCI6InNoYTI1Njo2ZDVjNzlkNjJmNTJlYmZlMzI4ODA0YzJlODYzYzZmOTI4ZDY3MzQzMmIwNjc0YjMwMGY1YmFhNDY2Y2IyODAxIiwibWNwLmpzb24iOiJzaGEyNTY6MjUyYzlhMjdiNjJlN2Q0ZDZjMTg0OGRjYzQzMDJlNjkxZjM0ODY4ZGNhZjNlZGM0MDU0MTQ1OGU4NTViODNmZiIsInBsdWdpbi5qc29uIjoic2hhMjU2OjA5NzBmOWZiNDFlZGMyYzBkOTZjNDg4MDczYjhhNWQyYWFhM2RjNzcwN2VmNjA2MDEyYmQ4MGRmOTQ0M2ViMWUiLCJza2lsbHMvdHJ1bGlvby1hZ2VudC1hc3N1cmFuY2UvU0tJTEwubWQiOiJzaGEyNTY6NjE2ZTg3YThhNjQxMzI5YWU0MWRkZDZkODQ4YjVmOTIxMWQ3OGFiMWZiMWNmNzRjYmIxYTM0N2E1Yzk1YTIwMyIsInNraWxscy90cnVsaW9vLWFnZW50LXJlYWRpbmVzcy9TS0lMTC5tZCI6InNoYTI1NjowN2U2M2ZmZmMzYzNiYTBmODFkOTBkN2VlMTk1MTU0NDM1ZWZiNDU5YzcyZmE0ZjdiMDRmZWJkYjYyMDcwNGEwIiwic2tpbGxzL3RydWxpb28ta3lhL1NLSUxMLm1kIjoic2hhMjU2OjY4ZTY5YWE1NTA0YzkwYjc3ZWE1NjVhZjJkOWFmMWFlZTUxMjNlZjM2MTY5YmQ3ZGY1M2E1ZDM4ZDkwNjZiZmUiLCJza2lsbHMvdHJ1bGlvby1reWIvU0tJTEwubWQiOiJzaGEyNTY6MWIyMjY4NWMwZWY5NWFlY2UxMDQwMGQ2ODFhYjFkZjY3YTBmOTMzMzliNDQ5N2M2ZTNiNzAyOTQwNWJkNmM4MyIsInNraWxscy90cnVsaW9vLW9uYm9hcmRpbmcvU0tJTEwubWQiOiJzaGEyNTY6MTAyZWU5NTZjNDYwMjZlNGI4YzFiMmM4Y2EwNjdkNjA3OGU4ZmU0MmY2MjdhN2Q3NWFmY2VlOTExNWRmOWU2MyJ9LCJpc3N1ZXJfaWQiOiJreWE6dHJ1bGlvbzpwbHVnaW4taXNzdWVyIiwiaXNzdWVyX3VyaSI6Imh0dHBzOi8vaWRlbnRpdHkudHJ1bGlvby5jb20iLCJ0ZW5hbnQiOiJhY2N0XzAxa3phazdoZTBiajRmaDBtajVkdG5kNHM3Iiwic3RhdGVtZW50IjoiSXNzdWVkIGJ5IEtZQSBpc3N1ZXIgJ2t5YTp0cnVsaW9vOnBsdWdpbi1pc3N1ZXInIGF0IHRoZSByZXF1ZXN0IG9mIHRlbmFudCAnYWNjdF8wMWt6YWs3aGUwYmo0ZmgwbWo1ZHRuZDRzNyc7IHRoZSBzdWJqZWN0X2RpZ2VzdCBzZWFscyB0aGUgYXJ0aWZhY3QgY29udGVudC4ifQ.SWNzJ3iVmBXK83iFjLoQ3_qewIO-kS2l_f1QvXaYlCAFyqus5U55k70FP86T2_B3scMRH_VfDHhnLuetacVGCw"
 }

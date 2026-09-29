@@ -37,17 +37,25 @@ compliance determination. The relying party decides what discharges its obligati
 2. kyb_search(business_name, country_code)
    -> read the injected `search_summary`, NOT the raw `RecordStatus`.
       QUIRK: business search returns `RecordStatus: "nomatch"` even when real
-      candidates exist. `search_summary.candidate_count`/`has_results`/`top_matches`
-      are the truth; `search_summary.interpretation` says so. Do NOT report
-      "no match" when candidate_count > 0.
-      HOW CLOSE: `search_summary.best_match` is the single closest candidate and
-      `match_quality` (strong / partial / weak / none) is a heuristic band over its
-      `MatchingScore`. On `nomatch`-with-candidates, tell the user the closest match
-      and how confident it is - "no exact match, but a strong candidate: <name>" -
-      rather than a bare list. A `strong` best_match still needs kyb_verify to
-      CONFIRM identity; a `partial`/`weak` best means refine the name or verify the
-      BRN and rely on the verify result. Each `top_matches` entry carries its own
-      `match_strength`.
+      candidates exist. `search_summary.candidate_count` is the truth. Do NOT
+      report "no match" when candidate_count > 0.
+      WHETHER YOU MAY CONTINUE: `search_summary.decision`
+      (`{schema_version, auto_verify_allowed, selection_required, reason}`) is the
+      machine answer - branch on it, not on the prose.
+      HOW CLOSE: `match_quality` (strong / partial / weak / none) is a heuristic
+      band over the top row's `MatchingScore`, and each row in
+      `search_summary.selection.candidates` carries its own `match_strength`. Tell
+      the user the closest match and how confident it is - "no exact match, but a
+      strong candidate: <name>" - rather than a bare list. A `strong` band still
+      needs kyb_verify to CONFIRM identity.
+      TO CHOOSE: every candidate appears exactly once in `selection.candidates`
+      with an `id` (c1, c2, ...); `selection.discriminators` names the fields that
+      actually separate THESE rows, `selection.groups` buckets them by one of them,
+      and `search_summary.clarification`, when present, is a ready-made closed
+      question with the option-to-id map in it.
+      TO VERIFY: pass `selection.ref` plus the chosen `candidate_id` to kyb_verify.
+      The fields are resolved server-side, so no name or registration number is
+      retyped and a row carrying no BRN is not a blocker.
       NEXT STEP: `recommended_next_checks` is a ranked array of concrete follow-ups
       (`{tool, reason, rung, combats}`) - the fraud-uplift ladder. A strong match
       points at kyb_verify to confirm; a weak/near match steps UP to docv_create_session.
