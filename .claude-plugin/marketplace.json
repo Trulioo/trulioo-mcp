@@ -7,7 +7,7 @@
     "url": "https://mcp.trulioo.com/developer/"
   },
   "description": "Trulioo business and agent verification for AI agents - hosted MCP tools, product skills, and guided due-diligence workflows.",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "plugins": [
     {
       "name": "trulioo-mcp",
@@ -15,9 +15,9 @@
         "source": "git-subdir",
         "url": "https://github.com/Trulioo/trulioo-mcp.git",
         "path": "trulioo-mcp",
-        "ref": "v0.7.2"
+        "ref": "v0.7.3"
       },
-      "version": "0.7.2",
+      "version": "0.7.3",
       "description": "Verify businesses and their beneficial ownership (KYB), and resolve, verify, and issue agent identities and scoped spend mandates (KYA), over Trulioo's hosted MCP server. Bundles the product skills, a guided due-diligence command, and a verification-orchestration agent.",
       "category": "verification",
       "keywords": [

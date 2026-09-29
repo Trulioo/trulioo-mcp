@@ -1,6 +1,6 @@
 {
   "name": "trulioo-mcp",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Use Trulioo to verify businesses and their beneficial ownership (KYB), and to resolve, verify, and issue agent identities and scoped spend mandates (KYA). Other capabilities are used only when the connected session advertises them.",
   "author": {
     "name": "Trulioo",
