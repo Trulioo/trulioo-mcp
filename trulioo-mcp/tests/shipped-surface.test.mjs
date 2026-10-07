@@ -92,7 +92,7 @@ test("Given the public package when product naming is scanned then Digital Agent
   }
 });
 
-test("Given the portable package when release metadata is compared then every projection is version 0.7.4", async () => {
+test("Given the portable package when release metadata is compared then every projection is version 0.7.5", async () => {
   const plugin = await readJson("plugin.json");
   const claude = await readJson(".claude-plugin", "plugin.json");
   const codex = await readJson(".codex-plugin", "plugin.json");
@@ -102,7 +102,7 @@ test("Given the portable package when release metadata is compared then every pr
   );
   const entry = marketplace.plugins.find((candidate) => candidate.name === plugin.name);
 
-  assert.equal(plugin.version, "0.7.4");
+  assert.equal(plugin.version, "0.7.5");
   assert.equal(claude.version, plugin.version);
   assert.equal(codex.version, plugin.version);
   assert.equal(server.version, plugin.version);

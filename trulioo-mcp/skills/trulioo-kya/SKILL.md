@@ -120,14 +120,13 @@ resolve, not one to pick from.
 
 ## Operating your own agent's identity
 
-The fingerprint is a v2 hash over the JCS-canonical identity-core, seeded by the
-`agent_key` thumbprint. What it COMMITS: the key, `name`, the FIRST
-`supported_interfaces[].url`, and `code_digest`. What it IGNORES: `version`,
-`description`, `skills`, `capabilities`, input/output modes, signatures.
+The v3 fingerprint commits `name`, the FIRST `supported_interfaces[].url`, and
+the `agent_key` thumbprint that seeds its JCS identity core. It ignores
+`code_digest`, `version`, `description`, `skills`, `capabilities`, modes and signatures.
 
-So **a new build is a new fingerprint**, and rotating the key re-mints the identity. Call
-`kya_card_fingerprint` before you ship to answer "will this card change my identity?" - it
-registers, attests and spends nothing.
+Build-only changes preserve identity. Build verification and relying-party policy
+still apply to `code_digest`. Key, name, or first-interface changes alter identity.
+Use `kya_card_fingerprint` before shipping; it registers, attests and spends nothing.
 
 The lifecycle:
 
@@ -135,8 +134,8 @@ The lifecycle:
    `kya_possession_challenge` for a fresh nonce, sign
    `{sub: <card fingerprint>, aud: <returned tenant>, nonce: <nonce>, iat: <now>}` as a
    compact EdDSA `agent-pop+jwt` with the agent key, and pass it to `kya_issue_mandate`.
-2. To roll a version forward, `kya_supersede_agent`. The fingerprint changes; the stable
-   Agent-ID does not.
+2. Roll forward with `kya_supersede_agent`. Build-only updates preserve the v3
+   fingerprint; identity-core changes alter it. The Agent-ID carries forward.
 3. Prove the current card's exact HTTPS interface host with `kya_get_agent_domain`,
    `kya_start_agent_domain_challenge`, and `kya_verify_agent_domain`. Those tools accept the
    selected `agent_id`; account, host, and DNS authority remain server-derived.

@@ -31,7 +31,7 @@ this page.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.4
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.5
 ```
 
 Then open Codex's plugin browser, select **Trulioo** from the added marketplace,
