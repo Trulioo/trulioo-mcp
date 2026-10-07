@@ -1,0 +1,15 @@
+{
+  "schema": "com.trulioo.plugin-kya-anchor/v1",
+  "tag": "v0.7.5",
+  "release_id": "release_trulioo_mcp_0_7_5",
+  "package_digest": "sha256:dd421d889ef96b2fc340fc5ce7f0573d8511548e07829e87c0197c3adcbb8eec",
+  "distribution_digest": "sha256:ad5316e1e553b480f2b4ad7acc6a112699527e8a84404ad2d2e280219202f988",
+  "receipt_digest": "sha256:bca7075e5fc712559301910bee958d510208f5d781ceeb1bbf32b8add724408f",
+  "provenance_source_commit": "c233e110628a15232115a3c6b76ee6fe3812ed3d",
+  "lifecycle": "candidate",
+  "status_version": 0,
+  "source_plugin_tree": "a3000ec09034b4c050c4e88fae39ad3f81c7dda0",
+  "managed_tree_sha256": "sha256:5d89cd0cc32073e2109f723b823bcd6a935b455ef3ac38584c1ffc387de56161",
+  "tag_object_sha": "78f7f4fb5d3d9202571ba37432fe221af4619d05",
+  "tag_commit_sha": "ffdf76de3b69945520bfdabb9513785b50503f7e"
+}
