@@ -31,8 +31,11 @@ this page.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.3
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.4
 ```
+
+Then open Codex's plugin browser, select **Trulioo** from the added marketplace,
+and install and enable it. Adding the marketplace only registers the source.
 
 **ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
 URL: `https://mcp.trulioo.com/mcp`.
@@ -49,10 +52,34 @@ node check-chatgpt-app-binding.mjs trulioo-mcp/.app.json
 Never commit the realized `.app.json`. The distributed file remains empty because
 the connection ID belongs to the installing ChatGPT workspace, not the publisher.
 
-Every client connects to the same hosted endpoint. On the first protected tool call
-you complete Trulioo's OAuth 2.1 flow (authorization code + PKCE) and sign in as
-yourself. **No token or client secret is stored in this package** - there is nothing
-here to leak, and nothing to configure before you install.
+Every client connects to the same hosted endpoint. Complete Trulioo's OAuth 2.1
+flow (authorization code + PKCE) and choose **Sandbox** to try synthetic results
+without Trulioo API credentials. Live verification requires your own credentials
+or an authorized staff sign-in. No token or client secret is stored in this package.
+
+For direct anonymous MCP testing, use `https://mcp.trulioo.com/mock/mcp` with
+authentication set to None. Its feature set is limited; check `trulioo_health`
+and `trulioo_capabilities`. The website root is a setup page, not an MCP URL.
+
+For a quick CLI sandbox with no sign-in:
+
+```sh
+claude mcp add --transport http trulioo-sandbox https://mcp.trulioo.com/mock/mcp
+codex mcp add trulioo-sandbox --url https://mcp.trulioo.com/mock/mcp
+```
+
+For the canonical connection:
+
+```sh
+claude mcp add --transport http trulioo https://mcp.trulioo.com/mcp
+# In Claude, run /mcp and authenticate Trulioo.
+codex mcp add trulioo --url https://mcp.trulioo.com/mcp
+codex mcp login trulioo
+```
+
+Choose Sandbox in the browser. A direct tester with only an Auth Header field
+cannot complete OAuth; use `/mock/mcp` with the header empty, or supply a valid
+MCP access token for `/mcp`.
 
 ## Client support
 
