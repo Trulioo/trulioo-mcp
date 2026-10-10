@@ -16,8 +16,10 @@ that tell a model how to read the results correctly.
 
 Your session may advertise more than that - person verification, sanctions and PEP
 screening, document verification, age assurance. Those are off by default or ride an
-account entitlement, so `tools/list` is the authority on what you actually have, not
-this page.
+account entitlement, so `trulioo_capabilities` is the authority on what you actually
+have, not this page. The server uses progressive discovery: tools outside the small
+resident set are found with `trulioo_find_tools` and called through
+`trulioo_invoke_tool`.
 
 ## Install
 
@@ -31,14 +33,21 @@ this page.
 **OpenAI Codex:**
 
 ```
-codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.5
+codex plugin marketplace add Trulioo/trulioo-mcp --ref v0.7.6
 ```
 
 Then open Codex's plugin browser, select **Trulioo** from the added marketplace,
 and install and enable it. Adding the marketplace only registers the source.
 
-**ChatGPT / Claude Desktop** - add the hosted MCP server as a remote connector by
-URL: `https://mcp.trulioo.com/mcp`.
+**Claude Desktop** - in chat, add `https://mcp.trulioo.com/mcp` as a custom
+connector (Settings > Connectors) and press **Connect**; OAuth runs then. On Team and
+Enterprise plans an organization Owner adds it first. Chat gets the MCP tools only.
+In Cowork, install the plugin from the marketplace instead to get the skills,
+command and agent. Use one route per Desktop app: the plugin plus a separate URL
+connector means two OAuth grants and duplicate tools.
+
+**ChatGPT** - add the hosted MCP server as a remote connector by URL:
+`https://mcp.trulioo.com/mcp`.
 
 For a local ChatGPT plugin test, register the endpoint in ChatGPT developer mode,
 copy its `plugin_asdk_app...` technical ID, then create a workspace-local binding:
@@ -55,7 +64,9 @@ the connection ID belongs to the installing ChatGPT workspace, not the publisher
 Every client connects to the same hosted endpoint. Complete Trulioo's OAuth 2.1
 flow (authorization code + PKCE) and choose **Sandbox** to try synthetic results
 without Trulioo API credentials. Live verification requires your own credentials
-or an authorized staff sign-in. No token or client secret is stored in this package.
+or an authorized staff sign-in. Sessions last 30 days, extended by activity, up to 90
+days. No token or client secret is stored in this package. The agent, not the
+server, confirms billed actions with you before it calls them.
 
 For direct anonymous MCP testing, use `https://mcp.trulioo.com/mock/mcp` with
 authentication set to None. Its feature set is limited; check `trulioo_health`
@@ -86,13 +97,14 @@ MCP access token for `/mcp`.
 | Client | MCP tools | Packaged skills, command, agent | MCP Apps UI |
 |---|---|---|---|
 | Claude Code | Yes | Yes | Not claimed by this projection |
-| Claude Desktop | Yes | No | Yes, when the client and server negotiate MCP Apps |
+| Claude Desktop (Cowork) | Yes | Yes | Not claimed |
+| Claude Desktop (chat, URL connector) | Yes | No | Not enabled on the hosted server |
 | ChatGPT | Yes | No Claude-specific assets | Yes, through the registered `.app.json` connection |
 | Claude API MCP connector | Tools only | No | No |
 
-Claude Desktop ignores the packaged skills, command, and agent; those are Claude
-Code features. The Claude API MCP connector is tools only and does not consume MCP
-resources or render MCP Apps UI.
+Desktop chat loads only the MCP tools; Cowork installs the full plugin. The Claude
+API MCP connector is tools only and does not consume MCP resources or render MCP
+Apps UI.
 
 ## First run
 

@@ -1,5 +1,24 @@
 # Changelog - trulioo-mcp
 
+## v0.7.6
+
+    trulioo-mcp v0.7.6
+    
+    Portable Agent Plugin (agent-plugins.org 1.0.0). Business verification (KYB)
+    and agent identity (KYA) for AI agents, over Trulioo's hosted MCP server.
+    Reads the tool contract the connected session advertises instead of assuming
+    one.
+    
+    KYA attestation:
+      issuer         Trulioo (kya:trulioo:plugin-issuer)
+      kid            trulioo-attestation-1
+      mode           issuer-signed (kid resolves in the issuer JWKS)
+      subject_digest sha256:6b36eac9db97b1483964b0ad046f146c475acaaf4cab93ee31458c28ebf133a5
+      sealed files   13 (manifest + mcp + skills + commands + agent)
+    
+    Verify:  node attest-plugin.mjs --verify --resolve
+    Install: /plugin marketplace add Trulioo/trulioo-mcp  ->  /plugin install trulioo-mcp@trulioo
+
 ## v0.7.5
 
     trulioo-mcp v0.7.5

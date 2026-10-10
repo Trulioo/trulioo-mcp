@@ -29,9 +29,9 @@ Always run in this order:
       deployment's Trulioo client id + secret. Do not continue on "error".
 
 2. trulioo_capabilities()
-   -> cache the enabled tool names for this session
+   -> cache the enabled tool names: resident AND deferred (see below)
    -> never call or promise a tool that is not listed
-   -> DocV and standalone AML are optional and disabled by default
+   -> DocV, standalone AML and monitoring are used only when listed here
 
 3. config_discover_account()
    -> returns available package_ids for this account
@@ -53,6 +53,33 @@ Always run in this order:
       declared outcome cannot steer it. Do not look for a fallback.
    -> config_list_test_entities is the deprecated name for this question
 ```
+
+## Resident and deferred tools
+
+The hosted server uses progressive discovery. `tools/list` carries a small resident set
+(orientation, discovery, config, the primary verbs, and every destructive tool); the rest
+of what the session can run is deferred: absent from `tools/list` but callable.
+
+- Resident: call it directly.
+- Deferred: find it, read its schema, then call it through the invoker.
+
+```
+trulioo_find_tools   {"query": "registration types"}
+trulioo_tool_schema  {"names": ["kyb_registration_lookup"]}
+trulioo_invoke_tool  {"name": "kyb_registration_lookup", "arguments": {"country_code": "US"}}
+```
+
+`trulioo_find_tools` marks a deferred result `advertised: false`. The invoker refuses
+destructive tools; those are always resident, so call them directly.
+
+## Billed and consequential calls
+
+The server runs what an authenticated session asks for; confirming is your job. Before
+`kyb_verify` (above all when it requests ownership or AML), `kyb_run_follow_up`,
+`aml_screen`, `kyc_verify`, `docv_create_session`, or a KYA issue or revoke, tell the user
+what will be submitted and, on a `live` session, that it is a billed live call. Call it
+only after they agree. A server that answers `reviewed_action_required` predates this
+contract: stop and tell the user.
 
 ## Startup checklist
 
@@ -79,7 +106,7 @@ it. It is bound to the CREDENTIAL you authenticated with: do not infer it from t
 deployment URL, a `package_id`, a tool name, pricing language, or a cached
 instruction from another session. On a sandbox session, `sandbox_list_scenarios`
 shows what you have declared; on any other session there are no test subjects to list.
-Never tell a user whether a call was billed: the mode fixes the `VerificationType` this
+Never claim a past call was or was not billed: the mode fixes the `VerificationType` this
 server sends, and the invoice is a fact about their Trulioo contract that no tool result
 reports.
 

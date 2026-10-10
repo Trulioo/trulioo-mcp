@@ -92,7 +92,7 @@ test("Given the public package when product naming is scanned then Digital Agent
   }
 });
 
-test("Given the portable package when release metadata is compared then every projection is version 0.7.5", async () => {
+test("Given the portable package when release metadata is compared then every projection is version 0.7.6", async () => {
   const plugin = await readJson("plugin.json");
   const claude = await readJson(".claude-plugin", "plugin.json");
   const codex = await readJson(".codex-plugin", "plugin.json");
@@ -102,7 +102,7 @@ test("Given the portable package when release metadata is compared then every pr
   );
   const entry = marketplace.plugins.find((candidate) => candidate.name === plugin.name);
 
-  assert.equal(plugin.version, "0.7.5");
+  assert.equal(plugin.version, "0.7.6");
   assert.equal(claude.version, plugin.version);
   assert.equal(codex.version, plugin.version);
   assert.equal(server.version, plugin.version);
@@ -189,15 +189,18 @@ test("Given Claude client projections when support is inspected then tools, skil
   });
   assert.match(claudeCode.note, /does not claim MCP Apps UI support/i);
 
+  // The URL connector carries tools only; Cowork installs the Claude Code-format plugin.
+  // The hosted server leaves MCP Apps off, so no Desktop projection may claim it.
   assert.deepEqual(claudeDesktop.support, {
     mcpTools: true,
     packagedSkills: false,
     packagedCommands: false,
     packagedAgents: false,
-    mcpAppsUi: true,
+    mcpAppsUi: false,
   });
-  assert.match(claudeDesktop.note, /MCP Apps UI/i);
-  assert.match(claudeDesktop.note, /negotiat/i);
+  assert.match(claudeDesktop.note, /Cowork/);
+  assert.match(claudeDesktop.note, /two OAuth grants and duplicate tools/);
+  assert.doesNotMatch(claudeDesktop.note, /Desktop ignores/i);
 
   const packageReadme = await read("README.md");
   const mirrorReadme = await readFile(outer("README.md", "mirror-README.md"), "utf8");
@@ -210,11 +213,14 @@ test("Given Claude client projections when support is inspected then tools, skil
       /\| Claude Code \| Yes \| Yes \| Not claimed by this projection \|/,
       where,
     );
+    assert.match(body, /\| Claude Desktop \(Cowork\) \| Yes \| Yes \| Not claimed \|/, where);
     assert.match(
       body,
-      /\| Claude Desktop \| Yes \| No \| Yes, when the client and server negotiate MCP Apps \|/,
+      /\| Claude Desktop \(chat, URL connector\) \| Yes \| No \| Not enabled on the hosted server \|/,
       where,
     );
+    assert.match(body, /duplicate tools/, `${where} must warn against two Desktop routes`);
+    assert.doesNotMatch(body, /first protected tool call/i, `${where}: OAuth runs at Connect`);
     assert.match(body, /\| Claude API MCP connector \| Tools only \| No \| No \|/, where);
   }
 });

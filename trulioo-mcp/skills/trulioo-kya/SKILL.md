@@ -8,8 +8,7 @@ description: "Resolve Digital Agent Profiles, verify agent credentials, and mana
 ## Purpose
 
 Decide whether an agent you are dealing with is who it claims to be, and manage the identity
-and spend authority of agents you operate. The `kya_*` family covers both directions: reading
-somebody else's agent, and issuing your own.
+and spend authority of agents you operate: reading somebody else's agent, and issuing your own.
 
 ## When to invoke
 
@@ -20,10 +19,11 @@ somebody else's agent, and issuing your own.
 - You operate an agent and need to publish, roll, retire, or revoke its identity
 - You want to check an issuance yourself rather than believe its `anchored: true`
 
-ON by default, and all-or-none: a deployment that turns the family off removes every tool in
-it, because a surface that answers `kya_lookup` and then cannot verify what it found is worse
-than either whole state. Ask `trulioo_capabilities` how many there are; a count written here
-is one that nothing measures.
+ON by default and all-or-none; `trulioo_capabilities` lists what this session holds. Most
+`kya_*` tools are deferred: find them with `trulioo_find_tools` and call them through
+`trulioo_invoke_tool`. Destructive ones (`kya_revoke_mandate`, `kya_retire_agent`) are
+resident; call them directly. Before an issue, record, supersede, retire or revoke, tell the
+user what will be submitted and call only once they agree.
 
 Proving the exact interface domain and measuring the outside view of an account-owned agent
 is `trulioo-agent-readiness`, a separate skill. That flow starts from a selected Digital
@@ -74,8 +74,7 @@ freshness, key binding, and algorithm.
 3. `kya_inclusion_proof` with that index and tree_size
 4. recompute the root from `leaf_hash` + proof (RFC 6962, bottom-up) and compare
 
-Gossiping the signed tree head is the defense against an issuer serving two logs, which is
-why it is public.
+Gossiping the signed tree head defends against an issuer serving two logs.
 
 For revocation, a profile's `status_reference` is `{issuer}/kya/status/list/{id}#{index}`: pass
 `{id}` to `kya_status_list`, verify the returned JWS against the issuer's JWKS, then read bit

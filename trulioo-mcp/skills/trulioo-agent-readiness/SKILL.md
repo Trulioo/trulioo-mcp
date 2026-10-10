@@ -27,8 +27,11 @@ the named host; it does not establish that the agent is operational or trustwort
 
 ## The agent-bound flow
 
-Confirm the session advertises the tools first. `trulioo_capabilities` or `tools/list` is the
-authority because readiness and DNS verification require outbound access and can be disabled.
+Confirm the session lists the tools first: `trulioo_capabilities` is the authority, because
+readiness and DNS verification need outbound access and can be disabled. These tools are
+deferred on the hosted server: find them with `trulioo_find_tools` and call them through
+`trulioo_invoke_tool`, e.g.
+`trulioo_invoke_tool {"name": "kya_get_agent_domain", "arguments": {"agent_id": "agent_01..."}}`.
 
 1. Use `kya_list_agents` and let the user select one Digital Agent Profile.
 2. Call `kya_get_agent_domain` with only that `agent_id`.
@@ -61,13 +64,14 @@ target, or replace the agent-bound tool flow.
 
 ## Domain states
 
-- `not_started`: no active proof exists; offer a reviewed start action.
+- `not_started`: no active proof exists; offer to start one.
 - `pending`: show the exact DNS instruction and expiry; verification may be retried.
 - `verified`: the binding is active for the selected profile and exact host.
 - `expired`: the prior proof cannot complete; start a new challenge.
 - `unavailable`: DNS could not be checked; preserve the challenge and offer a retry.
 
-Starting and verifying domain proof are reviewed write actions. Repeating start for the same
+Starting and verifying domain proof are write actions: confirm with the user before each
+call. Repeating start for the same
 unexpired proof is idempotent and must return that proof rather than invalidating DNS already
 in propagation.
 

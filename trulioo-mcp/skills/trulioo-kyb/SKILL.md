@@ -7,9 +7,8 @@ description: "Run KYB search, verification, reporting, and approved post-KYB fol
 
 ## Purpose
 
-Verify businesses and their ownership structures using Trulioo's global business
-registry data. Covers registration number discovery, full business verification,
-UBO mapping, AML screening, and ongoing monitoring enrollment.
+Verify businesses and their ownership with Trulioo's business registry data:
+registration types, verification, UBO, bundled AML, and optional monitoring.
 
 ## When to invoke
 
@@ -19,22 +18,32 @@ UBO mapping, AML screening, and ongoing monitoring enrollment.
 - Regulatory compliance work touching beneficial ownership (FATF, 5AMLD, FinCEN)
 - Any workflow calling `kyb_search`, `kyb_verify`, `kyb_get_report`, or monitoring tools
 
-The tool names below are not a promise your session holds them. `trulioo_capabilities`
-(or `tools/list`) is the authority: the KYB core is normally advertised; UBO, bundled
-AML and monitoring are optional and may be off or absent. Check it before offering a
-step, and say a capability is unavailable rather than improvise around it.
-
 Naming a regime is not a mapping to it: no output of this server establishes compliance
 with FATF, 5AMLD or FinCEN, and any such equivalence is UNVERIFIED here and is not a
 compliance determination. The relying party decides what discharges its obligation.
 
+The tool names below are not a promise your session holds them. `trulioo_capabilities`
+is the authority: the KYB core is normally present; UBO, bundled AML and monitoring are
+optional. `kyb_search` and `kyb_verify` are resident. Reach the rest
+(`kyb_registration_lookup`, `kyb_get_partial_result`, `kyb_get_report`,
+`kyb_run_follow_up`) with `trulioo_find_tools`, then
+`trulioo_invoke_tool {"name": "kyb_get_report", "arguments": {"record_id": "..."}}`.
+Say a capability is unavailable rather than improvise around it.
+
+**Confirm before billed calls.** The server runs what the session asks. Before
+`kyb_verify` (above all with `ubo_discovery` or `include_aml`) or `kyb_run_follow_up`,
+tell the user what will be submitted and, on a `live` session, that it is billed; call
+only once they agree.
+
 ## Full due-diligence sequence
 
 ```
-1. kyb_registration_lookup(country_code)
-   -> what registration ID types are valid for this country?
+1. kyb_registration_lookup(country_code)          [deferred: via the invoker]
+   -> registration ID types for the country; add jurisdiction_code for a US state,
+      omit country_code for all countries, or set
+      include="jurisdictions_of_incorporation" for the JOI list
 
-2. kyb_search(business_name, country_code)
+2. kyb_search(package_id, business_name, country_code)
    -> read the injected `search_summary`, NOT the raw `RecordStatus`.
       QUIRK: business search returns `RecordStatus: "nomatch"` even when real
       candidates exist. `search_summary.candidate_count` is the truth. Do NOT
@@ -53,16 +62,17 @@ compliance determination. The relying party decides what discharges its obligati
       actually separate THESE rows, `selection.groups` buckets them by one of them,
       and `search_summary.clarification`, when present, is a ready-made closed
       question with the option-to-id map in it.
-      TO VERIFY: pass `selection.ref` plus the chosen `candidate_id` to kyb_verify.
-      The fields are resolved server-side, so no name or registration number is
-      retyped and a row carrying no BRN is not a blocker.
+      TO VERIFY: pass `selection.ref` as `candidate_ref` plus the chosen
+      `candidate_id` to kyb_verify. The fields are resolved server-side, so no name
+      or registration number is retyped and a row carrying no BRN is not a blocker.
       NEXT STEP: `recommended_next_checks` is a ranked array of concrete follow-ups
       (`{tool, reason, rung, combats}`) - the fraud-uplift ladder. A strong match
       points at kyb_verify to confirm; a weak/near match steps UP to docv_create_session.
       Offer these as options, do not stop at the search result.
 
-3. kyb_verify(business_data_fields, country_code,
-              ubo_discovery=true, include_aml=true)
+3. kyb_verify(package_id, country_code, candidate_ref, candidate_id,
+              ubo_discovery=true, include_aml=true)     [confirm first: billed]
+   (or business_data_fields instead of candidate_ref + candidate_id)
    -> {TransactionID, is_terminal, next_action?, verify_summary?,
        recommended_next_checks?, ...}
    If is_terminal=false, FOLLOW `next_action` (it names kyb_get_partial_result and
@@ -71,40 +81,22 @@ compliance determination. The relying party decides what discharges its obligati
    single signal (never a final adverse/onboarding decision on its own), and when
    AML was bundled, any hit is a POTENTIAL match for human review - never adverse.
    `recommended_next_checks` gives the next options: a confirmed match points at
-   monitoring_enroll (rung 4) + screening review (rung 3); a not-confirmed result
+   monitoring (rung 4, when listed) + screening review (rung 3); a not-confirmed result
    steps UP to docv_create_session (rung 1) - never an outright decline.
 
-4. kyb_get_report(record_id=<transaction_record_id>)
-   -> full structured report: directors, shareholders, UBO persons, AML results
+4. kyb_get_report(record_id=<TransactionRecordID>)   [deferred]
+   -> full structured report: directors, shareholders, ownership, AML results
 
 5. (Optional) kyb_run_follow_up(transaction_id, mode,
                                 approved_by_caller=true, idempotency_key)
-   -> starts UBO or deep research after explicit caller approval
-   -> never call retired direct-start tools
+   -> UBO or deep research (billed): approved_by_caller=true only after the
+      user agrees; never call retired direct-start tools
 
-6. (Optional, only when advertised) monitoring_enroll(transaction_record_id)
-   -> ongoing change monitoring
+6. (Only when `trulioo_capabilities` lists it) monitoring_enroll(record_id)
+   -> ongoing change monitoring; record_id is the TransactionRecordID
 ```
-
-## Jurisdiction-level registration types
-
-US states and other jurisdictions have their own registration number types:
-
-```
-kyb_registration_lookup(country_code="US", jurisdiction_code="DE")
--> Delaware-specific registration types
-```
-
-`kyb_registration_lookup` is one tool for all registration reference data: pass
-`country_code` for a country's types, add `jurisdiction_code` for a sub-national
-variant, omit `country_code` for a full global lookup, or set
-`include="jurisdictions_of_incorporation"` for the JOI list.
 
 ## UBO discovery
-
-```json
-{ "ubo_discovery": true }
-```
 
 Whether any ownership comes back is a provisioning matter this server does not
 decide: `ubo_discovery=true` requests the `complete` tier (`Entities=true`
@@ -135,20 +127,17 @@ carry it too, decided from the payload rather than the request, so following a
 
 ## Monitoring enrollment
 
-After a successful KYB verification, enroll only when `monitoring_enroll` is
-advertised:
+Offer monitoring only when `trulioo_capabilities` lists `monitoring_enroll`; otherwise
+say it is unavailable.
 
 ```
-monitoring_enroll(transaction_record_id)
--> {enrollment_id, status: "active"}
-
-monitoring_get_alert(enrollment_id) -> latest change alert
-monitoring_refresh(enrollment_id)   -> force immediate re-check
-monitoring_cancel(enrollment_id)    -> stop monitoring (irreversible)
+monitoring_enroll(record_id)          -> {enrollment_id, status: "active"}
+monitoring_get_alert(enrollment_id)   -> latest change alert
+monitoring_refresh(enrollment_id)     -> force immediate re-check
+monitoring_cancel(enrollment_id)      -> stop monitoring (irreversible)
 ```
 
-Monitoring triggers alerts on: director changes, address changes, registration
-status changes, sanctions list additions, ownership structure changes.
+Alerts cover director, address, registration status, sanctions and ownership changes.
 
 ## Terminal status values
 

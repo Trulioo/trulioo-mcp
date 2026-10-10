@@ -1,8 +1,8 @@
 {
   "schema": "com.trulioo.plugin-distribution/v1",
-  "version": "0.7.5",
-  "tag": "v0.7.5",
-  "source_commit": "c233e110628a15232115a3c6b76ee6fe3812ed3d",
-  "source_plugin_tree": "a3000ec09034b4c050c4e88fae39ad3f81c7dda0",
-  "managed_tree_sha256": "sha256:5d89cd0cc32073e2109f723b823bcd6a935b455ef3ac38584c1ffc387de56161"
+  "version": "0.7.6",
+  "tag": "v0.7.6",
+  "source_commit": "b606c9ec58bb9b52e35f66b85520089141b95d1d",
+  "source_plugin_tree": "cd42e29c793f40544d5f78d751b6f473eb92df7c",
+  "managed_tree_sha256": "sha256:5ed4555f8853fe2c3b72d1c08c8957bf641a96b2ff4fa2a01c1cd8a2d281e31e"
 }

@@ -6,47 +6,39 @@ argument-hint: "[business_name] [country_code]"
 Execute the KYB due-diligence workflow with the `trulioo` MCP server. Business name
 and country code are optional arguments (default country `US`): `$ARGUMENTS`.
 
-Follow these steps in order:
+`trulioo_capabilities` lists what this session can run. `kyb_search` and `kyb_verify`
+are resident; reach a deferred tool (`kyb_get_partial_result`, `kyb_get_report`,
+`kyb_run_follow_up`) with `trulioo_find_tools`, then call it through
+`trulioo_invoke_tool {"name": "kyb_get_report", "arguments": {"record_id": "..."}}`.
 
-1. Call `config_discover_account` to pick an approved business `package_id`, then
+1. `config_discover_account` for an approved business `package_id`, then
    `config_describe_context(package_id, country_code)` for the valid
-   `business_data_fields` and required consents.
-2. Call `kyb_search(package_id, business_name, country_code)`. Read the injected
-   `search_summary` (candidate_count / decision / match_quality / selection),
-   NOT the raw `RecordStatus` - business search returns `nomatch` even
-   when candidates exist. Report the closest candidate and how close it is
-   (`match_quality`: strong / partial / weak). Choose a row from
-   `search_summary.selection.candidates` by its `id`, then hand
-   `selection.ref` + that `candidate_id` to `kyb_verify` - the registration number
-   is resolved server-side and is never retyped.
-   Offer the `recommended_next_checks` ladder: a strong match -> verify to confirm;
-   a weak or near match -> step up to DocV.
-3. Call `kyb_verify` with `package_id`, `country_code`, and a `business_data_fields`
-   object (e.g. `BusinessName` and a registration field), plus `include_aml=true`.
-   For ownership pass `ubo_discovery=true` (or `profile="complete"`), the only flag
-   that sets `Entities=true` upstream. It requests the tier; the account's package
-   must be provisioned for it, so if no ownership comes back say the account may not
-   be entitled to ask - never that the business has no beneficial owners. Do NOT send
-   `BeneficialOwnersCheck`: it never triggered UBO, so a request carrying it returns
-   no ownership while looking like it asked for some. There is no
-   `tier` argument and no top-level name/BRN - identity fields belong in
-   `business_data_fields`.
-4. If `is_terminal: false`, FOLLOW `next_action` (it names `kyb_get_partial_result`
-   and a poll interval) until terminal. On a terminal
-   result, read `verify_summary.interpretation`, then `ubo_evidence` and
-   `ubo_evidence_note` BEFORE using the ownership graph under `AppendedFields` /
-   `Ownerships` (there is no flat `ubo_persons` field). `ubo_evidence: false` means
-   the hierarchy is unsourced supplier data, not a register filing, so it cannot be
-   cited as one. Follow `recommended_next_checks`: a confirmed match -> monitoring +
-   screening review; not confirmed -> step up to DocV. Never issue an outright
-   decline on this one signal.
-5. For ongoing monitoring, call `monitoring_enroll` with
-   `transaction_record_id=<TransactionRecordID from kyb_verify>`.
-6. Summarise: entity name, registration status, UBO count (as unsourced supplier
-   data when `ubo_evidence` is false), AML result. A KYB result is a single signal,
-   never a final adverse/onboarding decision; route any AML hit to human review.
+   `business_data_fields` and consents.
+2. `kyb_search(package_id, business_name, country_code)`. Read `search_summary`
+   (candidate_count / decision / match_quality / selection), NOT the raw
+   `RecordStatus`: search returns `nomatch` even when candidates exist. Report the
+   closest candidate and its `match_quality`. Pick a row from
+   `search_summary.selection.candidates` by `id`; it becomes `candidate_id`, and
+   `selection.ref` becomes `candidate_ref`. Offer the `recommended_next_checks`
+   ladder: strong match -> verify; weak match -> DocV.
+3. Confirm with the user first: say what will be submitted and, on a `live` session,
+   that the verify is billed. Then
+   `kyb_verify(package_id, country_code, candidate_ref, candidate_id, include_aml=true)`
+   (or `business_data_fields` instead of the candidate pair). For ownership add
+   `ubo_discovery=true`; the package must be provisioned for it, so no ownership means
+   the account may not be entitled to ask, never that there are no owners. Do NOT
+   send `BeneficialOwnersCheck`: it never triggers UBO. There is no `tier` argument.
+4. If `is_terminal: false`, follow `next_action` until terminal. Read
+   `verify_summary.interpretation`, then `ubo_evidence` and `ubo_evidence_note`
+   before the ownership under `AppendedFields` (there is no flat `ubo_persons`
+   field). `ubo_evidence: false` means unsourced supplier data, not a register filing.
+   Not confirmed -> step up to DocV; never an outright decline on one signal.
+5. Only if `trulioo_capabilities` lists `monitoring_enroll`, offer
+   `monitoring_enroll(record_id)` with the TransactionRecordID from `kyb_verify`.
+6. Summarise: entity, registration status, UBO count (unsourced when `ubo_evidence`
+   is false), AML result. Route any AML hit to human review.
 
-State the session's mode in the summary, and read it rather than assume it: the mode
-is bound to the credential you authenticated with, so check `trulioo_health`'s `mode`
-and each result's `test_mode.data` marker (`synthetic` vs real). Never call a run a
-demo without having read one of those.
+State the session's mode, read from `trulioo_health`'s `mode` and each result's
+`test_mode.data` marker (`synthetic` vs real). Never call a run a demo without
+having read one of those. If a server answers `reviewed_action_required`, it
+predates this contract: stop and tell the user.
